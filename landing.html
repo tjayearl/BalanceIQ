@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BalanceIQ - Financial Clarity</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #fff;
+        }
+        
+        /* Navigation */
+        .main-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a3e73;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #1a3e73;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #1a3e73;
+            color: white;
+            border: 2px solid #1a3e73;
+        }
+        .btn-primary:hover {
+            background-color: #132c54;
+            border-color: #132c54;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #1a3e73;
+            border: 2px solid #1a3e73;
+        }
+        .btn-secondary:hover {
+            background-color: #f0f4f8;
+            transform: translateY(-1px);
+        }
+        .btn-nav-login {
+            margin-left: 1rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 1.5rem;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 80vh;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+            color: #1a3e73;
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: #555;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* Trust/Features Section */
+        .trust-section {
+            padding: 4rem 5%;
+            background-color: #fff;
+            text-align: center;
+        }
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .trust-item {
+            padding: 2rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            transition: transform 0.2s;
+        }
+        .trust-item:hover {
+            transform: translateY(-5px);
+        }
+        .trust-item i {
+            font-size: 2rem;
+            color: #1a3e73;
+            margin-bottom: 1rem;
+        }
+        .trust-item h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .trust-item p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1a3e73;
+            color: white;
+            padding: 2rem 5%;
+            text-align: center;
+        }
+        footer p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .nav-links { display: none; } /* Simplified for mobile for now */
+        }
+
+        /* Visual Preview Section */
+        .visual-preview-section {
+            padding: 4rem 5%;
+            background-color: #fff;
+            text-align: center;
+        }
+        .visual-header {
+            margin-bottom: 3rem;
+        }
+        .visual-header h2 {
+            font-size: 2.5rem;
+            color: #1a3e73;
+            margin-bottom: 1rem;
+        }
+        .visual-header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .dashboard-mockup {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            display: flex;
+            overflow: hidden;
+            border: 1px solid #e1e4e8;
+            text-align: left;
+        }
+
+        .mock-sidebar {
+            width: 70px;
+            background-color: #1a3e73;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .mock-dot { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 50%; }
+        .mock-line { width: 30px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+        .mock-main {
+            flex: 1;
+            padding: 30px;
+            background-color: #f4f6f9;
+        }
+        .mock-topbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        .mock-title { font-weight: bold; color: #333; font-size: 1.1rem; }
+        .mock-profile { width: 35px; height: 35px; background: #ddd; border-radius: 50%; }
+
+        .mock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .mock-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .mock-card-title { font-size: 0.85rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .mock-value { font-size: 1.8rem; font-weight: bold; color: #333; margin-bottom: 10px; }
+        .mock-value.negative { color: #d32f2f; }
+        
+        .blur-text {
+            filter: blur(5px);
+            user-select: none;
+            opacity: 0.7;
+        }
+
+        .mock-badge { display: inline-block; padding: 4px 10px; background: #ffebee; color: #c62828; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .mock-progress { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+        .mock-progress-fill { height: 100%; background: #1a3e73; }
+        .mock-chart-placeholder { height: 40px; background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 50%, #e3f2fd 100%); border-radius: 4px; margin-top: 5px; }
+
+        /* Problem/Solution Section */
+        .problem-solution-section {
+            padding: 4rem 5%;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .section-header {
+            margin-bottom: 3rem;
+        }
+        .section-header h2 {
+            font-size: 2.2rem;
+            color: #1a3e73;
+            margin-bottom: 0.5rem;
+        }
+        .section-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .problem-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            text-align: left;
+        }
+        .problem-card:hover {
+            transform: translateY(-5px);
+        }
+        .icon-wrapper {
+            width: 50px;
+            height: 50px;
+            background-color: #e3f2fd;
+            color: #1a3e73;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .problem-card h3 {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+        .problem-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* How It Works Section */
+        .how-it-works-section {
+            padding: 4rem 5%;
+            background-color: #fff;
+            text-align: center;
+        }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .step-card {
+            padding: 1rem;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: #1a3e73;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 1.5rem;
+        }
+        .step-card h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .step-card p {
+            color: #666;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 4rem 5%;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .feature-group-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: left;
+            border-top: 4px solid #1a3e73;
+        }
+        .feature-group-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .feature-icon-large {
+            font-size: 2.5rem;
+            color: #1a3e73;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+        .feature-group-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            margin-bottom: 0.8rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+        }
+        .feature-list li i {
+            color: #2e7d32;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Who This Is For Section */
+        .who-is-for-section {
+            padding: 4rem 5%;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .persona-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid #e1e4e8;
+            transition: all 0.2s;
+        }
+        .persona-card:hover {
+            border-color: #1a3e73;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .persona-icon {
+            font-size: 2rem;
+            color: #1a3e73;
+            margin-bottom: 1rem;
+        }
+        .persona-card h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .persona-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .persona-card a {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #1a3e73;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .persona-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Final CTA Section */
+        .cta-section {
+            padding: 5rem 5%;
+            background-color: #1a3e73;
+            color: white;
+            text-align: center;
+        }
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .btn-white {
+            background-color: white;
+            color: #1a3e73;
+            border: 2px solid white;
+        }
+        .btn-white:hover {
+            background-color: transparent;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="main-nav">
+        <a href="landing.html" class="logo">BalanceIQ</a>
+        <div class="nav-links">
+            <a href="#how-it-works">How it Works</a>
+            <a href="#features">Features</a>
+            <a href="#security">Security</a>
+            <a href="login.html" class="btn btn-secondary btn-nav-login" style="padding: 0.5rem 1rem; border: none;">Login</a>
+            <a href="signup.html" class="btn btn-primary" style="padding: 0.5rem 1rem;">Get Started</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Take control of your money — taxes, spending, and debt in one place.</h1>
+        <p>Track income, calculate taxes, manage debts, and understand your finances clearly.</p>
+        <div class="hero-actions">
+            <a href="signup.html" class="btn btn-primary">Get Started</a>
+            <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+    </section>
+
+    <section class="visual-preview-section">
+        <div class="visual-header">
+            <h2>See your financial health at a glance.</h2>
+            <p>No more spreadsheets. Just clear, actionable data.</p>
+        </div>
+        
+        <div class="dashboard-mockup">
+            <!-- Mock Sidebar -->
+            <div class="mock-sidebar">
+                <div class="mock-dot"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line" style="margin-top: auto;"></div>
+            </div>
+            <!-- Mock Content -->
+            <div class="mock-main">
+                <div class="mock-topbar">
+                    <div class="mock-title">Dashboard Overview</div>
+                    <div class="mock-profile"></div>
+                </div>
+                <div class="mock-grid">
+                    <div class="mock-card">
+                        <div class="mock-card-title">Monthly Spending</div>
+                        <div class="mock-value blur-text">$3,450.00</div>
+                        <div class="mock-chart-placeholder"></div>
+                    </div>
+                    <div class="mock-card">
+                        <div class="mock-card-title">Taxes Owed</div>
+                        <div class="mock-value negative blur-text">$1,250.00</div>
+                        <div class="mock-badge">Due in 12 days</div>
+                    </div>
+                    <div class="mock-card">
+                        <div class="mock-card-title">Debt Progress</div>
+                        <div class="mock-value blur-text">$15,200.00</div>
+                        <div class="mock-progress"><div class="mock-progress-fill" style="width: 40%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="problem-solution-section">
+        <div class="section-header">
+            <h2>Stop guessing. Start knowing.</h2>
+            <p>We solve the chaos of modern personal finance.</p>
+        </div>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="icon-wrapper"><i class="fas fa-calculator"></i></div>
+                <h3>Unsure how much tax you owe?</h3>
+                <p>Automatic tax calculation based on your income and region.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon-wrapper"><i class="fas fa-chart-line"></i></div>
+                <h3>Spending more than you think?</h3>
+                <p>Clear weekly & monthly reports to spot trends instantly.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon-wrapper"><i class="fas fa-university"></i></div>
+                <h3>Multiple bank accounts?</h3>
+                <p>See all your balances and transactions in one unified dashboard.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon-wrapper"><i class="fas fa-hand-holding-usd"></i></div>
+                <h3>Losing track of debts?</h3>
+                <p>Track your debt payoff progress and stay motivated.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works-section">
+        <div class="section-header">
+            <h2>It’s easier than you think.</h2>
+            <p>Get set up and running in minutes.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Create an account</h3>
+                <p>Sign up in seconds. It’s quick, secure, and free to start.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Add or connect financial data</h3>
+                <p>Link your bank for automatic updates, or simply type in your cash spending.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Automatically track spending, tax & debt</h3>
+                <p>We categorize everything instantly so you don't have to.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h3>View reports and stay in control</h3>
+                <p>Instantly see your financial health, taxes, and savings grow.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features-section">
+        <div class="section-header">
+            <h2>Powerful features, simple interface.</h2>
+            <p>Everything you need to manage your financial life in one place.</p>
+        </div>
+        <div class="features-grid">
+            <!-- Tracking -->
+            <div class="feature-group-card">
+                <i class="fas fa-chart-bar feature-icon-large"></i>
+                <h3>Smart Tracking</h3>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> Expense tracking</li>
+                    <li><i class="fas fa-check"></i> Income tracking</li>
+                    <li><i class="fas fa-check"></i> Weekly / monthly summaries</li>
+                </ul>
+            </div>
+            <!-- Taxes -->
+            <div class="feature-group-card">
+                <i class="fas fa-file-invoice-dollar feature-icon-large"></i>
+                <h3>Tax Intelligence</h3>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> Automatic tax calculation</li>
+                    <li><i class="fas fa-check"></i> Yearly tax overview</li>
+                    <li><i class="fas fa-check"></i> Tax reminders</li>
+                </ul>
+            </div>
+            <!-- Debt & Accounts -->
+            <div class="feature-group-card">
+                <i class="fas fa-university feature-icon-large"></i>
+                <h3>Accounts & Debt</h3>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> Debt tracking</li>
+                    <li><i class="fas fa-check"></i> Bank account overview</li>
+                    <li><i class="fas fa-check"></i> Payment history</li>
+                </ul>
+            </div>
+            <!-- Insights -->
+            <div class="feature-group-card">
+                <i class="fas fa-lightbulb feature-icon-large"></i>
+                <h3>Deep Insights</h3>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> Spending trends</li>
+                    <li><i class="fas fa-check"></i> Detailed reports</li>
+                    <li><i class="fas fa-check"></i> Downloadable summaries</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="security" class="trust-section">
+        <div class="section-header">
+            <h2>Your security is our top priority.</h2>
+            <p>Your financial data belongs to you — not advertisers.</p>
+        </div>
+        <div class="trust-grid">
+            <div class="trust-item">
+                <i class="fas fa-lock"></i>
+                <h3>Bank-Grade Encryption</h3>
+                <p>We use 256-bit encryption to ensure your financial details are unreadable to anyone but you.</p>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-user-shield"></i>
+                <h3>Only You Have Access</h3>
+                <p>We build our systems so that not even our own staff can see your sensitive banking credentials.</p>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-ban"></i>
+                <h3>No Data Selling</h3>
+                <p>Your information is never sold to advertisers or third parties. Your business is your business.</p>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-key"></i>
+                <h3>Secure Authentication</h3>
+                <p>We use industry-standard secure login protocols to keep your account safe from intruders.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="who-is-for-section">
+        <div class="section-header">
+            <h2>Built for everyone who values their money.</h2>
+            <p>Whether you earn a salary or run a business, we’ve got you covered.</p>
+        </div>
+        <div class="persona-grid">
+            <div class="persona-card">
+                <div class="persona-icon"><i class="fas fa-user"></i></div>
+                <h3>Individuals</h3>
+                <p>Manage personal spending, savings goals, and daily expenses with ease.</p>
+                <a href="signup.html">Start Tracking &rarr;</a>
+            </div>
+            <div class="persona-card">
+                <div class="persona-icon"><i class="fas fa-laptop-house"></i></div>
+                <h3>Freelancers</h3>
+                <p>Track irregular income, calculate estimated taxes, and separate business expenses.</p>
+                <a href="signup.html">Manage Income &rarr;</a>
+            </div>
+            <div class="persona-card">
+                <div class="persona-icon"><i class="fas fa-store"></i></div>
+                <h3>Small Business Owners</h3>
+                <p>Keep a pulse on cash flow, debts, and profitability without complex accounting software.</p>
+                <a href="signup.html">Grow Your Business &rarr;</a>
+            </div>
+            <div class="persona-card">
+                <div class="persona-icon"><i class="fas fa-search-dollar"></i></div>
+                <h3>Seekers of Clarity</h3>
+                <p>Anyone who wants to stop stressing about money and start understanding it.</p>
+                <a href="signup.html">Get Clarity &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Start understanding your money today.</h2>
+        <p>Join thousands of users who are mastering their money with BalanceIQ.</p>
+        <a href="signup.html" class="btn btn-white">Create Free Account</a>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 BalanceIQ. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

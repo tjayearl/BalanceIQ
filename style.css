@@ -1,0 +1,1055 @@
+/* 1. Color Theme & Basic Setup */
+:root {
+    --deep-blue: #1A3E73;
+    --sky-blue: #4DA3FF;
+    --white: #FFFFFF;
+    --soft-gray: #F1F3F5;
+    --dark-gray: #2F2F2F;
+    --emerald-green: #33CC66;
+    --red: #FF4E4E;
+    --gradient-blue: linear-gradient(135deg, #1A3E73, #4DA3FF);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--soft-gray);
+    color: var(--dark-gray);
+}
+
+/* A helper class to prevent body scroll when a modal is open */
+.modal-open {
+    overflow: hidden;
+}
+
+/* 2. Header Suggestions */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--deep-blue);
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 500;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+}
+
+.main-nav a:hover {
+    color: var(--deep-blue);
+}
+
+.main-nav a.active {
+    color: var(--deep-blue);
+    border-bottom-color: var(--sky-blue);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-profile .profile-icon {
+    font-size: 1.8rem;
+    color: var(--sky-blue);
+}
+
+.user-profile .logout-icon {
+    font-size: 1.2rem;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.user-profile .logout-icon:hover {
+    color: var(--red);
+}
+
+/* 3. Main Page (Dashboard) */
+.dashboard {
+    padding: 2rem;
+}
+
+.welcome-banner {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-banner h1 {
+    color: var(--deep-blue);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.welcome-banner p {
+    font-size: 1.1rem;
+    color: #6c757d; /* A slightly softer gray for subtext */
+}
+
+/* 4. Main Cards Section */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.card {
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card h3 {
+    color: var(--dark-gray);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.card-icon {
+    color: var(--sky-blue);
+    font-size: 1.25rem;
+}
+
+.card .amount {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--deep-blue);
+    margin-top: 0.5rem;
+}
+
+.card .amount.positive {
+    color: var(--emerald-green);
+}
+
+.card .amount.negative {
+    color: var(--red);
+}
+
+.card .note {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.card .badge {
+    background-color: #fff0f0;
+    color: var(--red);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    align-self: flex-start;
+}
+
+.trend-down {
+    color: var(--emerald-green);
+}
+
+.trend-up {
+    color: var(--red);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--soft-gray);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress {
+    height: 100%;
+    background-color: var(--sky-blue);
+    border-radius: 4px;
+}
+
+/* 5. Quick Action Buttons */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn {
+    background-color: var(--sky-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn:hover {
+    transform: scale(1.05);
+    background-color: var(--deep-blue);
+}
+
+.action-btn.secondary {
+    background-color: #e9ecef; /* A light gray */
+    color: var(--dark-gray);
+}
+
+.action-btn.secondary:hover {
+    background-color: #ced4da; /* A slightly darker gray for hover */
+    color: var(--deep-blue);
+    transform: scale(1.05);
+}
+
+/* 6. Recent Activity Section */
+.recent-activity {
+    margin-top: 2rem;
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.recent-activity h2 {
+    color: var(--deep-blue);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.activity-table-container {
+    max-height: 300px; /* Limits the height and makes it scrollable */
+    overflow-y: auto;
+}
+
+.recent-activity table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-activity th,
+.recent-activity td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--soft-gray);
+}
+
+.recent-activity th {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 500;
+    position: sticky; /* Makes header stick during scroll */
+    top: 0;
+    background-color: var(--white);
+}
+
+.recent-activity tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.recent-activity td {
+    font-size: 0.95rem;
+}
+
+.recent-activity .amount {
+    font-weight: bold;
+}
+
+.recent-activity .amount.positive {
+    color: var(--emerald-green);
+}
+
+.recent-activity .amount.negative {
+    color: var(--red);
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* 7. Footer */
+.main-footer {
+    background-color: var(--deep-blue);
+    color: var(--soft-gray); /* Using soft-gray for a less stark contrast */
+    padding: 2rem;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    gap: 1.5rem;
+}
+
+.footer-copyright {
+    font-size: 0.9rem;
+}
+
+.footer-nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-nav a {
+    color: var(--soft-gray);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s;
+}
+
+.footer-nav a:hover {
+    color: var(--sky-blue);
+}
+
+/* 8. Modal Styles */
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 550px; /* Slightly wider for complex forms */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* Limit modal height to 90% of the viewport height */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--soft-gray);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+    color: var(--deep-blue);
+    font-size: 1.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: var(--dark-gray);
+}
+
+.modal-body {
+    overflow-y: auto; /* Make the body of the modal scrollable */
+    padding-right: 1rem; /* Add space for the scrollbar */
+    margin-right: -1rem; /* Offset the padding to keep content aligned */
+}
+
+.modal-subtitle {
+    text-align: center;
+    font-size: 1rem;
+    color: #6c757d;
+    margin: 0.5rem 0 1.5rem 0;
+}
+
+/* Bank Connection Options */
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.back-btn:hover {
+    color: var(--deep-blue);
+}
+
+.connection-option {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.connection-option:hover {
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.25);
+}
+
+.connection-option h4 {
+    color: var(--deep-blue);
+    margin-bottom: 0.5rem;
+}
+
+.connection-option p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.connection-option.recommended {
+    border-color: var(--sky-blue);
+    position: relative;
+    border-width: 2px;
+}
+
+/* Bank Loading View */
+#bank-loading-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    gap: 1.5rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--soft-gray);
+    border-top-color: var(--sky-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    font-size: 1rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Bank Permission View */
+#bank-permission-view h4 {
+    color: var(--dark-gray);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.permission-list {
+    list-style: none;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.permission-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.permission-list i {
+    color: var(--emerald-green);
+}
+
+.sync-options {
+    background-color: var(--soft-gray);
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Bank Linking Modal Styles */
+.search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.search-container .fa-search {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    font-size: 1rem;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.25);
+}
+
+.bank-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid var(--soft-gray);
+}
+
+.bank-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--soft-gray);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.bank-item:hover {
+    background-color: var(--soft-gray);
+}
+
+.bank-item i:first-child {
+    color: var(--deep-blue);
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.bank-item span {
+    flex-grow: 1;
+    font-weight: 500;
+}
+
+.bank-item i:last-child {
+    color: #ccc;
+}
+
+/* 9. Modal Form Styles */
+.expense-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-group-row .form-group {
+    flex: 1;
+}
+
+.expense-form label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--dark-gray);
+}
+
+.expense-form input,
+.expense-form select,
+.expense-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.expense-form input:focus,
+.expense-form select:focus,
+.expense-form textarea:focus {
+    outline: none;
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.25);
+}
+
+.amount-input {
+    display: flex;
+    align-items: center;
+}
+
+.amount-input select {
+    padding: 0.75rem;
+    background-color: var(--soft-gray);
+    border: 1px solid #ced4da;
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    color: #6c757d;
+    font-size: 1rem;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.amount-input input {
+    border-radius: 0 4px 4px 0;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--soft-gray);
+    margin-top: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--deep-blue);
+    color: var(--white);
+}
+
+.btn-secondary {
+    background-color: var(--soft-gray);
+    color: var(--dark-gray);
+    border-color: #ced4da;
+}
+
+/* 10. Toast Notification */
+#toast-notification {
+    visibility: hidden;
+    min-width: 280px;
+    background-color: var(--deep-blue);
+    color: var(--white);
+    text-align: center;
+    border-radius: 8px;
+    padding: 1rem;
+    position: fixed;
+    z-index: 1001;
+    right: 30px;
+    bottom: 30px;
+    font-size: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#toast-notification.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+/* 11. Advanced Form Features */
+.advanced-features {
+    align-items: center;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-switch label {
+    cursor: pointer;
+}
+
+.toggle-switch input[type="checkbox"] {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ccc;
+    outline: none;
+    border-radius: 20px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toggle-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    background: var(--white);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+    transition: 0.3s;
+}
+
+.toggle-switch input[type="checkbox"]:checked {
+    background: var(--sky-blue);
+}
+
+.toggle-switch input[type="checkbox"]:checked::before {
+    left: 20px;
+}
+
+.quick-add-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background-color: var(--soft-gray);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--deep-blue);
+}
+
+/* 12. Pro Form Features */
+.hidden {
+    display: none !important;
+}
+
+.quick-add-features p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--dark-gray);
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+    accent-color: var(--deep-blue);
+}
+
+.file-input {
+    font-size: 0.9rem;
+}
+
+.file-input::file-selector-button {
+    background-color: var(--soft-gray);
+    color: var(--dark-gray);
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-right: 1rem;
+}
+
+.file-input::file-selector-button:hover {
+    background-color: #ced4da;
+}
+
+/* 13. Tax Calculator Modal Styles */
+.tax-calculator-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.editable-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.editable-table td {
+    padding: 0.5rem;
+}
+
+.editable-input {
+    width: 100%;
+    border: 1px solid transparent;
+    background-color: transparent;
+    padding: 0.5rem;
+    font-size: 0.95rem;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.editable-input:focus {
+    outline: none;
+    background-color: var(--soft-gray);
+    border-color: var(--sky-blue);
+}
+
+.tax-type-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    background-color: var(--soft-gray);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+/* 14. Tax Details Display */
+.tax-details-content {
+    background-color: var(--soft-gray);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.tax-details-content h4 {
+    color: var(--deep-blue);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+}
+.tax-details-content h4:first-child {
+    margin-top: 0;
+}
+
+.details-table {
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.details-list {
+    list-style-position: inside;
+    padding-left: 0.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* 15. Tax Results Dashboard */
+.results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+.results-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.summary-card-item {
+    background-color: var(--soft-gray);
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-left: 4px solid var(--sky-blue);
+}
+
+.summary-card-item span {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.summary-card-item strong {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--deep-blue);
+}
+
+.summary-card-item.primary {
+    background: var(--gradient-blue);
+    color: var(--white);
+    border-left: none;
+}
+.summary-card-item.primary span {
+    color: rgba(255, 255, 255, 0.8);
+}
+.summary-card-item.primary strong {
+    color: var(--emerald-green);
+    font-size: 1.8rem;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.chart-wrapper h4 {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+/* 16. Bank Accounts Section */
+.bank-accounts {
+    margin-top: 2rem;
+}
+
+.bank-accounts h2 {
+    color: var(--deep-blue);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.account-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.account-card {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.account-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.account-info h4 {
+    font-size: 1.2rem;
+    color: var(--dark-gray);
+}
+
+.account-info span {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--deep-blue);
+}
+
+.account-icon {
+    font-size: 1.5rem;
+    color: var(--sky-blue);
+}
+
+.last-transaction p {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.account-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto; /* Pushes actions to the bottom */
+}
+
+.card-action-btn {
+    background-color: var(--soft-gray);
+    border: 1px solid #e0e0e0;
+    color: #6c757d;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.card-action-btn:hover {
+    background-color: var(--sky-blue);
+    color: var(--white);
+}
+
+.card-action-btn.delete:hover {
+    background-color: var(--red);
+    color: var(--white);
+}

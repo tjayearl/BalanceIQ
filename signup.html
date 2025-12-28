@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - BalanceIQ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        /* Container */
+        .signup-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        /* Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .brand-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a3e73;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .brand-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #444;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #1a3e73;
+        }
+        
+        /* Button */
+        .btn-signup {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #1a3e73;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-signup:hover {
+            background-color: #132c54;
+        }
+        
+        /* Footer Link */
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .login-link a {
+            color: #1a3e73;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <div class="brand-header">
+            <a href="landing.html" class="brand-logo">BalanceIQ</a>
+            <p>Create your free account to start tracking.</p>
+        </div>
+        
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="form-control" placeholder="name@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-signup">Create Account</button>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a href="login.html">Log in</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('.btn-signup');
+            btn.textContent = 'Creating Account...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                window.location.href = 'signup-step2.html';
+            }, 800);
+        });
+    </script>
+</body>
+</html>

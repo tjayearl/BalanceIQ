@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BalanceIQ - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Adding an icon library for the profile and logout icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Adding a charting library for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Styles for Reports View */
+        .reports-view {
+            padding-top: 10px;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .reports-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .time-filters .filter-btn {
+            background: #f0f2f5;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+        .time-filters .filter-btn.active {
+            background: #1a3e73; /* Matching primary color */
+            color: white;
+        }
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .report-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Styles for Transactions View */
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .filters-container input, .filters-container select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .clickable-row:hover {
+            background-color: #f5f7fa;
+        }
+        .help-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: -5px;
+            margin-bottom: 15px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <a href="index.html" class="logo" style="text-decoration: none;">BalanceIQ</a>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#" class="active">Dashboard</a></li>
+                <li><a href="#">Taxes</a></li>
+                <li><a href="#">Expenses</a></li>
+                <li><a href="#">Debts</a></li>
+                <li><a href="#">Accounts</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </nav>
+        <div class="user-profile">
+            <i class="fas fa-user-circle profile-icon"></i>
+            <span>Hello, Tjay</span>
+            <i class="fas fa-sign-out-alt logout-icon"></i>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <div id="dashboard-content">
+        <section class="welcome-banner">
+            <h1>Welcome back, Tjay</h1>
+            <p>Here is your financial overview for today.</p>
+        </section>
+
+        <!-- Main Cards Section -->
+        <section class="summary-cards">
+            <!-- Card 1: Total Bank Balance -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Total Bank Balance</h3>
+                    <i class="fas fa-wallet card-icon"></i>
+                </div>
+                <p id="total-balance-amount" class="amount positive">$42,873.50</p>
+                <p class="note">Across all linked accounts</p>
+            </div>
+
+            <!-- Card 2: Taxes Owed -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Taxes Owed</h3>
+                    <i class="fas fa-file-invoice-dollar card-icon"></i>
+                </div>
+                <p id="taxes-owed-amount" class="amount negative">$1,250.00</p>
+                <span class="badge">Due in 12 days</span>
+            </div>
+
+            <!-- Card 3: Monthly Expenses -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Monthly Expenses</h3>
+                    <i class="fas fa-shopping-cart card-icon"></i>
+                </div>
+                <p id="monthly-expenses-amount" class="amount">$3,450.10 <i class="fas fa-arrow-down trend-down"></i></p>
+                <p class="note">vs. last month</p>
+            </div>
+
+            <!-- Card 4: Money Owed / Debts -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Total Debts</h3>
+                    <i class="fas fa-credit-card card-icon"></i>
+                </div>
+                <p class="amount">$15,200.00</p>
+                <div class="progress-bar"><div class="progress" style="width: 40%;"></div></div>
+            </div>
+
+            <!-- Card 5: Income Summary -->
+            <div class="card">
+                <h3>Income This Month</h3>
+                <p id="monthly-income-amount" class="amount">$7,200.00</p>
+                <p class="note">Projected Yearly: $86,400</p>
+            </div>
+
+            <!-- Card 6: Savings / Surplus -->
+            <div class="card">
+                <h3>Monthly Surplus</h3>
+                <p id="monthly-surplus-amount" class="amount positive">$2,499.90</p>
+                <p class="note">Remaining after expenses</p>
+            </div>
+        </section>
+
+        <!-- Quick Action Buttons Section -->
+        <section class="quick-actions">
+            <!-- Primary Buttons -->
+            <button id="add-expense-btn" class="action-btn"><i class="fas fa-plus-circle"></i> Add Expense</button>
+            <button id="add-income-btn" class="action-btn"><i class="fas fa-hand-holding-usd"></i> Add Income</button>
+            <button id="calculate-tax-btn" class="action-btn"><i class="fas fa-calculator"></i> Calculate Tax</button>
+            <button id="add-bank-account-btn" class="action-btn"><i class="fas fa-university"></i> Add Bank Account</button>
+            <button id="record-payment-btn" class="action-btn"><i class="fas fa-money-check-alt"></i> Record Payment</button>
+            <button id="view-report-btn" class="action-btn"><i class="fas fa-chart-pie"></i> View Detailed Report</button>
+            <!-- Secondary Buttons -->
+            <button id="view-transactions-btn" class="action-btn secondary"><i class="fas fa-list-alt"></i> View All Transactions</button>
+            <button id="edit-profile-btn" class="action-btn secondary"><i class="fas fa-user-edit"></i> Edit Profile</button>
+            <button id="notification-settings-btn" class="action-btn secondary"><i class="fas fa-bell"></i> Notification Settings</button>
+        </section>
+
+        <!-- Recent Activity Section -->
+        <section class="recent-activity">
+            <h2>Recent Activity</h2>
+            <div class="activity-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activity-tbody">
+                        <tr>
+                            <td>Monthly Salary</td>
+                            <td>Income</td>
+                            <td>Oct 25, 2023</td>
+                            <td class="amount positive text-right">+$3,600.00</td>
+                        </tr>
+                        <tr>
+                            <td>Starbucks Coffee</td>
+                            <td>Food & Drink</td>
+                            <td>Oct 26, 2023</td>
+                            <td class="amount negative text-right">-$5.75</td>
+                        </tr>
+                        <tr>
+                            <td>Netflix Subscription</td>
+                            <td>Entertainment</td>
+                            <td>Oct 24, 2023</td>
+                            <td class="amount negative text-right">-$15.49</td>
+                        </tr>
+                        <tr>
+                            <td>Rent Payment</td>
+                            <td>Housing</td>
+                            <td>Oct 22, 2023</td>
+                            <td class="amount negative text-right">-$1,800.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Bank Accounts Section -->
+        <section class="bank-accounts">
+            <h2>Your Linked Accounts</h2>
+            <div class="account-cards-container">
+                <!-- Example Account Card 1 -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <div class="account-info">
+                            <h4>KCB</h4>
+                            <span>KES 54,000.00</span>
+                        </div>
+                        <i class="fas fa-university account-icon"></i>
+                    </div>
+                    <div class="last-transaction">
+                        <p>Last: <span>Payment to Naivas - KES 2,300</span></p>
+                    </div>
+                    <div class="account-card-actions">
+                        <button class="card-action-btn" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                        <button class="card-action-btn" title="View Transactions"><i class="fas fa-eye"></i></button>
+                        <button class="card-action-btn delete" title="Delete Account"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+                <!-- Example Account Card 2 -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <div class="account-info">
+                            <h4>M-Pesa</h4>
+                            <span>KES 3,450.50</span>
+                        </div>
+                        <i class="fas fa-mobile-alt account-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </div>
+
+        <!-- Detailed Reports View (Hidden by default) -->
+        <div id="reports-view" class="hidden">
+            <div class="reports-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="back-to-dashboard" class="action-btn secondary" style="padding: 8px 15px;"><i class="fas fa-arrow-left"></i> Back</button>
+                    <h2 style="margin: 0;">Financial Report</h2>
+                </div>
+                <div class="time-filters">
+                    <button class="filter-btn" data-period="week">Week</button>
+                    <button class="filter-btn active" data-period="month">Month</button>
+                    <button class="filter-btn" data-period="year">Year</button>
+                </div>
+            </div>
+
+            <div class="report-summary">
+                <div class="card">
+                    <h3>Net Income</h3>
+                    <p class="amount positive">+KES 24,500.00</p>
+                    <p class="note">Income - Expenses</p>
+                </div>
+                <div class="card">
+                    <h3>Tax Status</h3>
+                    <p class="amount negative">KES 1,250.00</p>
+                    <p class="note">Owed (Paid: KES 15k)</p>
+                </div>
+                <div class="card">
+                    <h3>Debt Progress</h3>
+                    <p class="amount">KES 5,000 Paid</p>
+                    <div class="progress-bar" style="margin-top: 10px;"><div class="progress" style="width: 60%;"></div></div>
+                </div>
+            </div>
+
+            <div class="report-charts">
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Income vs Spending</h3>
+                    <canvas id="incomeVsSpendingChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Expense Breakdown</h3>
+                    <canvas id="expenseBreakdownChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Transactions View (Hidden by default) -->
+        <div id="transactions-view" class="hidden">
+            <div class="reports-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="back-to-dashboard-from-transactions" class="action-btn secondary" style="padding: 8px 15px;"><i class="fas fa-arrow-left"></i> Back</button>
+                    <h2 style="margin: 0;">All Transactions</h2>
+                </div>
+                <button class="action-btn secondary"><i class="fas fa-download"></i> Export CSV</button>
+            </div>
+
+            <div class="filters-container">
+                <input type="text" id="trans-search" placeholder="Search description..." style="flex: 2;">
+                <select id="trans-filter-category" style="flex: 1;">
+                    <option value="all">All Categories</option>
+                    <option value="Income">Income</option>
+                    <option value="Food">Food</option>
+                    <option value="Housing">Housing</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Tax">Tax</option>
+                </select>
+                <select id="trans-filter-account" style="flex: 1;">
+                    <option value="all">All Accounts</option>
+                    <option value="Equity Bank">Equity Bank</option>
+                    <option value="KCB">KCB</option>
+                    <option value="M-Pesa">M-Pesa</option>
+                    <option value="Card">Card</option>
+                    <option value="Cash">Cash</option>
+                </select>
+                <input type="date" id="trans-filter-date" style="flex: 1;">
+            </div>
+
+            <div class="activity-table-container">
+                <table id="all-transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Account</th>
+                            <th class="text-right">Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-copyright">
+            &copy; BalanceIQ 2025. All Rights Reserved.
+        </div>
+        <nav class="footer-nav">
+            <ul>
+                <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                <li><a href="#"><i class="fas fa-file-contract"></i> Terms & Conditions</a></li>
+                <li><a href="#"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                <li><a href="#"><i class="fas fa-headset"></i> Contact Support</a></li>
+            </ul>
+        </nav>
+    </footer>
+
+    <!-- Add Expense Modal -->
+    <div id="expense-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Expense</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="expense-form">
+                    <div class="form-group">
+                        <label for="expense-name">Expense Name</label>
+                        <input type="text" id="expense-name" list="expense-suggestions" placeholder="e.g., Groceries" required>
+                        <datalist id="expense-suggestions">
+                            <option value="Electricity Bill"></option>
+                            <option value="Rent"></option>
+                            <option value="Groceries"></option>
+                            <option value="Internet Bill"></option>
+                        </datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" required>
+                            <option value="" disabled selected>Select a category</option>
+                            <option value="housing">Housing</option>
+                            <option value="food">Food</option>
+                            <option value="transport">Transport</option>
+                            <option value="bills">Bills</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="expense-amount">Amount</label>
+                            <div class="amount-input">
+                                <select id="expense-currency">
+                                    <option>USD</option>
+                                    <option>KES</option>
+                                    <option>EUR</option>
+                                    <option>GBP</option>
+                                    <option>NGN</option>
+                                    <option>AUD</option>
+                                </select>
+                                <input type="number" id="expense-amount" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-date">Date</label>
+                            <input type="date" id="expense-date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-notes">Notes (Optional)</label>
+                        <textarea id="expense-notes" rows="3" placeholder="e.g., Monthly subscription"></textarea>
+                    </div>
+
+                    <div class="form-group-row advanced-features">
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="recurring-expense">
+                            <label for="recurring-expense">Repeat every month?</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Optional Flags</label>
+                        <div class="quick-add-features">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="business-expense"> Mark as business expense
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="tax-deduction"> Add to tax deductions
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Expense</button>
+                        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Income Modal -->
+    <div id="income-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Income</h2>
+                <button class="close-btn" data-close-for="income-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Income form will go here -->
+                <form class="income-form">
+                    <div class="form-group">
+                        <label for="income-source">Income Source</label>
+                        <input type="text" id="income-source" placeholder="e.g., Monthly Salary" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="income-category">Category</label>
+                        <select id="income-category" required>
+                            <option value="" disabled selected>Select a category</option>
+                            <option value="salary">Salary</option>
+                            <option value="bonus">Bonus</option>
+                            <option value="business">Business</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="investment">Investment</option>
+                            <option value="rental">Rental</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="income-amount">Amount</label>
+                            <div class="amount-input">
+                                <select id="income-currency">
+                                    <option>KES</option>
+                                    <option>USD</option>
+                                    <option>EUR</option>
+                                    <option>GBP</option>
+                                    <option>NGN</option>
+                                    <option>ZAR</option>
+                                </select>
+                                <input type="number" id="income-amount" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="income-date">Date Received</label>
+                            <input type="date" id="income-date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="income-account">Deposit To</label>
+                        <select id="income-account" required>
+                            <option value="" disabled selected>Select an account</option>
+                            <option value="equity-kes">Equity Bank — KES</option>
+                            <option value="absa-usd">Absa Bank — USD</option>
+                            <option value="mpesa-kes">M-Pesa — KES</option>
+                            <option value="paypal-usd">PayPal — USD</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="income-notes">Notes (Optional)</label>
+                        <textarea id="income-notes" rows="2" placeholder="e.g., Payment for design project"></textarea>
+                    </div>
+
+                    <!-- Pro Features -->
+                    <div class="form-group-row advanced-features">
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="recurring-income">
+                            <label for="recurring-income">Repeat every month?</label>
+                        </div>
+                        <div class="form-group hidden" id="recurring-day-group">
+                            <label for="recurring-day">Day of month</label>
+                            <input type="number" id="recurring-day" min="1" max="31" placeholder="e.g., 27">
+                        </div>
+                    </div>
+
+                    <div class="form-group hidden" id="tax-tagging-group">
+                        <label>Tax Auto-Tagging</label>
+                        <div class="quick-add-features">
+                            <p>Automatically calculate tax from this income?</p>
+                            <label class="radio-label">
+                                <input type="radio" name="auto-tax" value="yes"> Yes
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="auto-tax" value="no" checked> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="income-slip-upload">Upload Slip (Optional)</label>
+                        <input type="file" id="income-slip-upload" class="file-input">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Income</button>
+                        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tax Calculator Modal -->
+    <div id="tax-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tax Calculator</h2>
+                <button class="close-btn" data-close-for="tax-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="tax-calculator-form">
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="tax-region">Tax Region/Country</label>
+                            <select id="tax-region">
+                                <option>Kenya</option>
+                                <option>Uganda</option>
+                                <option>USA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tax-residency">Tax Residency</label>
+                            <select id="tax-residency">
+                                <option>Resident</option>
+                                <option>Non-Resident</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Choose Tax Type</label>
+                        <div class="tax-type-options">
+                            <label class="radio-label">
+                                <input type="radio" name="tax-type" value="personal" checked> Personal Income Tax
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tax-type" value="business"> Business Tax
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tax-type" value="vat"> Sales Tax / VAT
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tax-type" value="wht"> Withholding Tax (WHT)
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tax-type" value="cgt"> Capital Gains Tax
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tax-type" value="import"> Import Duty
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Income Summary (Editable)</label>
+                        <div class="activity-table-container">
+                            <table class="editable-table">
+                                <thead>
+                                    <tr>
+                                        <th>Income Type</th>
+                                        <th class="text-right">Amount (KES)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Monthly Salary</td>
+                                        <td><input type="text" class="editable-input text-right" value="120,000.00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Business Income (YTD)</td>
+                                        <td><input type="text" class="editable-input text-right" value="50,000.00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Freelance Income (YTD)</td>
+                                        <td><input type="text" class="editable-input text-right" value="85,000.00"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Applicable Tax Rates Section (Dynamic) -->
+                    <div id="tax-details-section" class="form-group hidden">
+                        <label id="tax-details-title">Applicable Rates & Deductions</label>
+                        <div class="tax-details-content">
+                            <h4>Tax Brackets</h4>
+                            <table id="tax-brackets-table" class="details-table">
+                                <!-- JS will populate this -->
+                            </table>
+                            <h4>Standard Deductions & Reliefs</h4>
+                            <ul id="tax-deductions-list" class="details-list">
+                                <!-- JS will populate this -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tax Results Section (Dynamic) -->
+                    <div id="tax-results-section" class="form-group hidden">
+                        <label>Tax Results</label>
+                        <div class="results-container">
+                            <div class="results-summary-cards">
+                                <div class="summary-card-item primary">
+                                    <span>Tax Still Owed</span>
+                                    <strong id="result-remaining-tax">KES 25,500.00</strong>
+                                </div>
+                                <div class="summary-card-item">
+                                    <span>This Month's Tax</span>
+                                    <strong id="result-monthly-tax">KES 2,125.00</strong>
+                                </div>
+                                <div class="summary-card-item">
+                                    <span>Total Annual Tax</span>
+                                    <strong id="result-annual-tax">KES 28,800.00</strong>
+                                </div>
+                            </div>
+                            <div class="charts-container">
+                                <div class="chart-wrapper">
+                                    <h4>Income vs. Tax Breakdown</h4>
+                                    <canvas id="taxPieChart"></canvas>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <h4>Monthly Tax Projection</h4>
+                                    <canvas id="taxBarGraph"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="calculate-tax-submit-btn" class="btn-primary">Calculate Tax</button>
+                        <div id="tax-results-actions" class="hidden">
+                            <button type="button" class="action-btn"><i class="fas fa-save"></i> Save Report</button>
+                            <button type="button" class="action-btn"><i class="fas fa-money-bill-wave"></i> Pay Tax Now</button>
+                            <button type="button" class="action-btn"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                            <button type="button" id="recalculate-tax-btn" class="action-btn secondary"><i class="fas fa-sync-alt"></i> Recalculate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link Bank Account Modal -->
+    <div id="bank-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Link Your Bank Account</h2>
+                <button class="close-btn" data-close-for="bank-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-subtitle">
+                    Securely connect your bank to sync your balance, transactions, and income data.
+                </p>
+                <!-- View 1: Bank Selection -->
+                <div id="bank-selection-view">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="bank-search" placeholder="Search for your bank...">
+                    </div>
+                    <ul id="bank-list" class="bank-list">
+                        <li class="bank-item"><i class="fas fa-university"></i><span>Equity Bank</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-university"></i><span>KCB</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-university"></i><span>Cooperative Bank</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-university"></i><span>Absa</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-university"></i><span>Standard Chartered</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-university"></i><span>Family Bank</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-university"></i><span>NCBA</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-mobile-alt"></i><span>Safaricom (M-Pesa)</span><i class="fas fa-chevron-right"></i></li>
+                        <li class="bank-item"><i class="fas fa-globe"></i><span>Other International Bank</span><i class="fas fa-chevron-right"></i></li>
+                    </ul>
+                </div>
+                <!-- View 2: Connection Method Selection -->
+                <div id="bank-connection-view" class="hidden">
+                    <button type="button" id="back-to-bank-list" class="back-btn"><i class="fas fa-arrow-left"></i> Back to list</button>
+                    <div class="connection-option recommended">
+                        <h4>Automatic Sync (Recommended)</h4>
+                        <p>You will be redirected to your bank’s secure login page to connect.</p>
+                        <button id="connect-securely-btn" class="btn-primary">Connect Securely</button>
+                    </div>
+                    <div class="connection-option">
+                        <h4>Manual Upload</h4>
+                        <p>Upload bank statements (PDF, CSV) for manual processing.</p>
+                        <button class="btn-secondary">Upload Statement</button>
+                    </div>
+                </div>
+                <!-- View 3: Loading State -->
+                <div id="bank-loading-view" class="hidden">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Redirecting to secure bank login...</p>
+                    </div>
+                </div>
+                <!-- View 4: Permission Review -->
+                <div id="bank-permission-view" class="hidden">
+                    <button type="button" id="back-to-connection-method" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+                    <h4>BalanceIQ will have view-only access to:</h4>
+                    <ul class="permission-list">
+                        <li><i class="fas fa-check-circle"></i> Account balance</li>
+                        <li><i class="fas fa-check-circle"></i> Transactions</li>
+                        <li><i class="fas fa-check-circle"></i> Account name and number</li>
+                        <li><i class="fas fa-check-circle"></i> Currency type</li>
+                        <li><i class="fas fa-check-circle"></i> Income deposits & Expense payments</li>
+                    </ul>
+                    <div class="sync-options">
+                        <h4>Sync Frequency</h4>
+                        <label class="radio-label"><input type="radio" name="sync-frequency" value="daily" checked> Sync daily (real-time)</label>
+                        <label class="radio-label"><input type="radio" name="sync-frequency" value="monthly"> Sync monthly</label>
+                    </div>
+                    <div class="form-actions">
+                        <button id="agree-and-connect-btn" class="btn-primary">Agree & Connect</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Payment Modal -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Record Payment</h2>
+                <button class="close-btn" data-close-for="payment-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="payment-form">
+                    <div class="form-group">
+                        <label for="payment-amount">Amount</label>
+                        <div class="amount-input">
+                            <select id="payment-currency">
+                                <option>KES</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                            </select>
+                            <input type="number" id="payment-amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-category">Category</label>
+                        <select id="payment-category" required>
+                            <option value="" disabled selected>Select category</option>
+                            <option value="Tax">Tax</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Loan">Loan Repayment</option>
+                            <option value="Food">Food & Drink</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-method">Payment Method</label>
+                        <select id="payment-method" required>
+                            <option value="M-Pesa">M-Pesa</option>
+                            <option value="Card">Card</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-date">Date</label>
+                        <input type="date" id="payment-date" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Payment</button>
+                        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div id="transaction-details-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Transaction Details</h2>
+                <button class="close-btn" data-close-for="transaction-details-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="transaction-details-form">
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="detail-desc" required>
+                    </div>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input type="number" id="detail-amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="detail-date" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="detail-category">
+                            <option value="Income">Income</option>
+                            <option value="Food">Food</option>
+                            <option value="Housing">Housing</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Tax">Tax</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="detail-notes" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <button type="button" class="btn-secondary delete-btn" style="background-color: #ffebee; color: #c62828; border: 1px solid #ef9a9a;">Delete Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-btn" data-close-for="profile-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="profile-name">Full Name</label>
+                        <input type="text" id="profile-name" value="Tjay" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">Email Address</label>
+                        <input type="email" id="profile-email" value="tjay@balanceiq.com" required>
+                    </div>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="profile-currency">Default Currency</label>
+                            <select id="profile-currency">
+                                <option value="KES" selected>KES</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-country">Tax Region</label>
+                            <select id="profile-country">
+                                <option value="Kenya" selected>Kenya</option>
+                                <option value="Uganda">Uganda</option>
+                                <option value="USA">USA</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-fy">Financial Year Start</label>
+                        <select id="profile-fy">
+                            <option value="jan" selected>January 1st</option>
+                            <option value="jul">July 1st</option>
+                            <option value="apr">April 1st</option>
+                            <option value="oct">October 1st</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Settings Modal -->
+    <div id="notification-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Notification Settings</h2>
+                <button class="close-btn" data-close-for="notification-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="notification-form">
+                    <p class="modal-subtitle" style="margin-bottom: 20px;">Manage how BalanceIQ communicates with you.</p>
+                    
+                    <div class="toggle-switch" style="margin-bottom: 10px;">
+                        <input type="checkbox" id="notify-tax" checked>
+                        <label for="notify-tax">Tax Deadlines</label>
+                    </div>
+                    <span class="help-text">Get reminders 7 days before tax filing is due.</span>
+
+                    <div class="toggle-switch" style="margin-bottom: 10px;">
+                        <input type="checkbox" id="notify-spending" checked>
+                        <label for="notify-spending">Monthly Spending Summaries</label>
+                    </div>
+                    <span class="help-text">Receive a report at the start of every month.</span>
+
+                    <div class="toggle-switch" style="margin-bottom: 10px;">
+                        <input type="checkbox" id="notify-alerts">
+                        <label for="notify-alerts">Unusual Spending Alerts</label>
+                    </div>
+                    <span class="help-text">Get notified if a transaction exceeds your average.</span>
+
+                    <div class="toggle-switch" style="margin-bottom: 10px;">
+                        <input type="checkbox" id="notify-debt" checked>
+                        <label for="notify-debt">Debt Due Reminders</label>
+                    </div>
+                    <span class="help-text">Reminders for upcoming loan repayments.</span>
+
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button type="submit" class="btn-primary">Save Preferences</button>
+                        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification"></div>
+
+    <script>
+        // --- Modal Handling ---
+        const expenseModal = document.getElementById('expense-modal');
+        const incomeModal = document.getElementById('income-modal');
+        const taxModal = document.getElementById('tax-modal');
+        const bankModal = document.getElementById('bank-modal');
+        const paymentModal = document.getElementById('payment-modal');
+        const profileModal = document.getElementById('profile-modal');
+        const notificationModal = document.getElementById('notification-modal');
+        const addExpenseBtn = document.getElementById('add-expense-btn');
+        const addIncomeBtn = document.getElementById('add-income-btn');
+        const recordPaymentBtn = document.getElementById('record-payment-btn');
+        const viewReportBtn = document.getElementById('view-report-btn');
+        const viewTransactionsBtn = document.getElementById('view-transactions-btn');
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const notificationSettingsBtn = document.getElementById('notification-settings-btn');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const reportsView = document.getElementById('reports-view');
+        const transactionsView = document.getElementById('transactions-view');
+        const transactionDetailsModal = document.getElementById('transaction-details-modal');
+        const taxRegionSelect = document.getElementById('tax-region');
+        const calculateTaxBtn = document.getElementById('calculate-tax-btn');
+        const expenseForm = document.querySelector('.expense-form');
+        const incomeForm = document.querySelector('.income-form');
+        const taxForm = document.querySelector('.tax-calculator-form');
+        const paymentForm = document.querySelector('.payment-form');
+        const profileForm = document.getElementById('profile-form');
+        const notificationForm = document.getElementById('notification-form');
+        const addBankAccountBtn = document.getElementById('add-bank-account-btn');
+        const incomeCategorySelect = document.getElementById('income-category');
+        const logoutBtn = document.querySelector('.logout-icon');
+        let taxPieChartInstance;
+        let taxBarGraphInstance;
+        let reportIncomeChart;
+        let reportExpenseChart;
+
+        // Function to open the expense modal
+        const openExpenseModal = () => {
+            // Reset form for a clean slate
+            expenseForm.reset();
+            document.body.classList.add('modal-open');
+            // Set default date to today each time the modal is opened
+            document.getElementById('expense-date').valueAsDate = new Date();
+            expenseModal.style.display = 'flex';
+            document.getElementById('expense-name').focus(); // Focus on the first field
+        };
+
+        // Function to open the income modal
+        const openIncomeModal = () => {
+            incomeForm.reset();
+            document.body.classList.add('modal-open');
+            document.getElementById('income-date').valueAsDate = new Date();
+            incomeModal.style.display = 'flex';
+            document.getElementById('recurring-day-group').classList.add('hidden');
+            document.getElementById('tax-tagging-group').classList.add('hidden');
+            document.getElementById('income-source').focus();
+        };
+
+        // Function to open the tax modal
+        const openTaxModal = () => {
+            document.body.classList.add('modal-open');
+            document.getElementById('calculate-tax-submit-btn').classList.remove('hidden');
+            document.getElementById('tax-results-section').classList.add('hidden');
+            document.getElementById('tax-results-actions').classList.add('hidden');
+            updateTaxDetails(); // Update details on open
+            taxModal.style.display = 'flex';
+        };
+
+        // Function to open the bank linking modal
+        const openBankModal = () => {
+            document.body.classList.add('modal-open');
+            bankModal.querySelector('h2').textContent = 'Link Your Bank Account';
+            // Ensure the correct view is showing when the modal opens
+            document.getElementById('bank-permission-view').classList.add('hidden');
+            document.getElementById('bank-selection-view').classList.remove('hidden');
+            document.getElementById('bank-connection-view').classList.add('hidden');
+            bankModal.style.display = 'flex';
+        };
+
+        // Function to open the payment modal
+        const openPaymentModal = () => {
+            paymentForm.reset();
+            document.body.classList.add('modal-open');
+            document.getElementById('payment-date').valueAsDate = new Date();
+            paymentModal.style.display = 'flex';
+            document.getElementById('payment-amount').focus();
+        };
+
+        // Function to open the profile modal
+        const openProfileModal = () => {
+            document.body.classList.add('modal-open');
+            profileModal.style.display = 'flex';
+        };
+
+        // Function to open the notification modal
+        const openNotificationModal = () => {
+            document.body.classList.add('modal-open');
+            notificationModal.style.display = 'flex';
+        };
+
+        // Function to close any modal
+        const closeModal = (modalElement) => {
+            if (modalElement) {
+                modalElement.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        };
+
+        // --- App State/Configuration ---
+        const DASHBOARD_CURRENCY = 'KES'; // User's default currency for dashboard totals
+
+        // --- General UI ---
+
+        // Function to show a toast notification
+        const showToast = (message) => {
+            const toast = document.getElementById('toast-notification');
+            toast.textContent = message;
+            toast.className = 'show';
+            setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
+        };
+
+        // --- Data Simulation ---
+
+        // Dummy conversion function for simulation
+        const convertCurrency = (amount, from, to) => {
+            // In a real app, this would use a live exchange rate API. Note: KES is the base here.
+            const rates = { USD: 1.0, KES: 130.5, EUR: 0.92, GBP: 0.79, NGN: 770.0, AUD: 1.45 };
+            if (from === to) return amount;
+            // Convert 'from' currency to USD first, then to 'to' currency
+            const amountInUSD = amount / rates[from];
+            return amountInUSD * rates[to];
+        };
+
+        // --- Tax Calculation Simulation ---
+        const taxData = {
+            'Kenya': {
+                'personal': {
+                    title: 'Personal Income Tax (PAYE) - Kenya',
+                    brackets: [
+                        { range: 'On the first KES 288,000 p.a.', rate: '10%' },
+                        // Note: The 'from' and 'to' properties are for calculation logic, not display
+                        { from: 0, to: 288000, rate: 0.10 },
+                        { range: 'On the next KES 100,000 p.a.', rate: '25%' },
+                        { range: 'On all income over KES 388,000 p.a.', rate: '30%' },
+                    ],
+                    deductions: [
+                        'Personal Relief: KES 28,800 per annum.',
+                        'Insurance Relief: 15% of premiums paid (max KES 60,000 p.a.).',
+                        'NSSF & NHIF contributions.'
+                    ]
+                }
+            },
+            'USA': {
+                'personal': {
+                    title: 'Federal Income Tax - USA',
+                    brackets: [
+                        { range: '$0 to $11,000', rate: '10%' },
+                        { range: '$11,001 to $44,725', rate: '12%' },
+                        { range: '$44,726 to $95,375', rate: '22%' },
+                    ],
+                    deductions: [
+                        'Standard Deduction (varies by filing status).',
+                        '401(k) contributions.',
+                        'Student loan interest.'
+                    ]
+                }
+            }
+        };
+
+        const updateTaxDetails = () => {
+            const region = taxRegionSelect.value;
+            const type = document.querySelector('input[name="tax-type"]:checked').value;
+            const detailsSection = document.getElementById('tax-details-section');
+            const data = taxData[region] ? taxData[region][type] : null;
+
+            if (data) {
+                document.getElementById('tax-details-title').textContent = data.title;
+                
+                const bracketsTable = document.getElementById('tax-brackets-table');
+                bracketsTable.innerHTML = data.brackets.map(b => `<tr><td>${b.range}</td><td class="text-right">${b.rate}</td></tr>`).join('');
+
+                const deductionsList = document.getElementById('tax-deductions-list');
+                deductionsList.innerHTML = data.deductions.map(d => `<li>${d}</li>`).join('');
+
+                detailsSection.classList.remove('hidden');
+            } else {
+                detailsSection.classList.add('hidden');
+            }
+        };
+
+        const renderTaxCharts = (data) => {
+            // Destroy existing charts if they exist to prevent conflicts
+            if (taxPieChartInstance) taxPieChartInstance.destroy();
+            if (taxBarGraphInstance) taxBarGraphInstance.destroy();
+
+            // Pie Chart: Income vs. Tax
+            const pieCtx = document.getElementById('taxPieChart').getContext('2d');
+            taxPieChartInstance = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Net Income', 'Total Tax'],
+                    datasets: [{
+                        data: [data.netIncome, data.grossTax],
+                        backgroundColor: ['#4DA3FF', '#FF4E4E'],
+                        borderColor: 'var(--white)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Bar Graph: Monthly Tax
+            const barCtx = document.getElementById('taxBarGraph').getContext('2d');
+            taxBarGraphInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Monthly Tax (KES)',
+                        data: Array(12).fill(data.monthlyTax), // Simulate equal tax each month
+                        backgroundColor: 'rgba(26, 62, 115, 0.8)',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        };
+
+
+        // --- Event Listeners ---
+
+        // Listeners to open modals
+        addExpenseBtn.addEventListener('click', openExpenseModal);
+        addIncomeBtn.addEventListener('click', openIncomeModal);
+        calculateTaxBtn.addEventListener('click', openTaxModal);
+        addBankAccountBtn.addEventListener('click', openBankModal);
+        recordPaymentBtn.addEventListener('click', openPaymentModal);
+        editProfileBtn.addEventListener('click', openProfileModal);
+        notificationSettingsBtn.addEventListener('click', openNotificationModal);
+        
+        // Report View Logic
+        viewReportBtn.addEventListener('click', () => {
+            dashboardContent.classList.add('hidden');
+            reportsView.classList.remove('hidden');
+            renderReportCharts('month'); // Default view
+        });
+
+        document.getElementById('back-to-dashboard').addEventListener('click', () => {
+            reportsView.classList.add('hidden');
+            dashboardContent.classList.remove('hidden');
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update active state
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                // Update charts
+                renderReportCharts(e.target.dataset.period);
+            });
+        });
+
+        const renderReportCharts = (period) => {
+            // Destroy existing charts
+            if (reportIncomeChart) reportIncomeChart.destroy();
+            if (reportExpenseChart) reportExpenseChart.destroy();
+
+            // Dummy Data based on period
+            let labels, incomeData, expenseData;
+            if (period === 'week') {
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                incomeData = [0, 0, 0, 0, 3600, 0, 0];
+                expenseData = [50, 120, 30, 45, 200, 150, 80];
+            } else if (period === 'month') {
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                incomeData = [3600, 0, 3600, 0];
+                expenseData = [800, 1200, 650, 900];
+            } else {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                incomeData = [7000, 7200, 6800, 7500, 7200, 8000];
+                expenseData = [3000, 3400, 2900, 3100, 3500, 3200];
+            }
+
+            // Income vs Spending Chart
+            const ctx1 = document.getElementById('incomeVsSpendingChart').getContext('2d');
+            reportIncomeChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Income', data: incomeData, backgroundColor: '#4CAF50', borderRadius: 4 },
+                        { label: 'Spending', data: expenseData, backgroundColor: '#FF5252', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Expense Breakdown Chart
+            const ctx2 = document.getElementById('expenseBreakdownChart').getContext('2d');
+            reportExpenseChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Housing', 'Food', 'Transport', 'Entertainment', 'Others'],
+                    datasets: [{
+                        data: [40, 25, 15, 10, 10],
+                        backgroundColor: ['#1a3e73', '#4DA3FF', '#FF9F43', '#FF5252', '#ccc'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+        };
+
+        // --- Transactions View Logic ---
+        
+        // Mock Data for Transactions
+        let allTransactions = [
+            { id: 1, date: '2023-10-26', desc: 'Starbucks Coffee', category: 'Food', account: 'M-Pesa', amount: -5.75, currency: 'USD', status: 'Completed', notes: '' },
+            { id: 2, date: '2023-10-25', desc: 'Monthly Salary', category: 'Income', account: 'Equity Bank', amount: 3600.00, currency: 'USD', status: 'Completed', notes: 'October Salary' },
+            { id: 3, date: '2023-10-24', desc: 'Netflix Subscription', category: 'Entertainment', account: 'Card', amount: -15.49, currency: 'USD', status: 'Pending', notes: '' },
+            { id: 4, date: '2023-10-22', desc: 'Rent Payment', category: 'Housing', account: 'KCB', amount: -1800.00, currency: 'USD', status: 'Completed', notes: '' },
+            { id: 5, date: '2023-10-20', desc: 'Uber Ride', category: 'Transport', account: 'Card', amount: -24.50, currency: 'USD', status: 'Completed', notes: 'Trip to airport' },
+            { id: 6, date: '2023-10-18', desc: 'Freelance Project', category: 'Income', account: 'PayPal', amount: 850.00, currency: 'USD', status: 'Completed', notes: 'Logo design' },
+            { id: 7, date: '2023-10-15', desc: 'Grocery Shopping', category: 'Food', account: 'M-Pesa', amount: -145.20, currency: 'USD', status: 'Completed', notes: '' },
+        ];
+
+        const renderTransactions = (data) => {
+            const tbody = document.querySelector('#all-transactions-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(t => {
+                const row = document.createElement('tr');
+                row.className = 'clickable-row';
+                row.innerHTML = `
+                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                    <td>${t.desc}</td>
+                    <td>${t.category}</td>
+                    <td>${t.account}</td>
+                    <td class="text-right ${t.amount > 0 ? 'positive' : 'negative'}">${t.amount > 0 ? '+' : ''}${t.amount.toFixed(2)} ${t.currency}</td>
+                    <td><span class="badge" style="background: ${t.status === 'Completed' ? '#e8f5e9' : '#fff3e0'}; color: ${t.status === 'Completed' ? '#2e7d32' : '#ef6c00'};">${t.status}</span></td>
+                `;
+                row.addEventListener('click', () => openTransactionDetails(t));
+                tbody.appendChild(row);
+            });
+        };
+
+        const openTransactionDetails = (transaction) => {
+            document.getElementById('detail-desc').value = transaction.desc;
+            document.getElementById('detail-amount').value = Math.abs(transaction.amount);
+            document.getElementById('detail-date').value = transaction.date;
+            document.getElementById('detail-category').value = transaction.category;
+            document.getElementById('detail-notes').value = transaction.notes;
+            
+            document.body.classList.add('modal-open');
+            transactionDetailsModal.style.display = 'flex';
+        };
+
+        const filterTransactions = () => {
+            const search = document.getElementById('trans-search').value.toLowerCase();
+            const category = document.getElementById('trans-filter-category').value;
+            const account = document.getElementById('trans-filter-account').value;
+            const date = document.getElementById('trans-filter-date').value;
+
+            const filtered = allTransactions.filter(t => {
+                const matchesSearch = t.desc.toLowerCase().includes(search);
+                const matchesCategory = category === 'all' || t.category === category;
+                const matchesAccount = account === 'all' || t.account === account;
+                const matchesDate = !date || t.date === date;
+                return matchesSearch && matchesCategory && matchesAccount && matchesDate;
+            });
+            renderTransactions(filtered);
+        };
+
+        viewTransactionsBtn.addEventListener('click', () => {
+            dashboardContent.classList.add('hidden');
+            reportsView.classList.add('hidden');
+            transactionsView.classList.remove('hidden');
+            renderTransactions(allTransactions);
+        });
+
+        document.getElementById('back-to-dashboard-from-transactions').addEventListener('click', () => {
+            transactionsView.classList.add('hidden');
+            dashboardContent.classList.remove('hidden');
+        });
+
+        // Filter Event Listeners
+        document.getElementById('trans-search').addEventListener('keyup', filterTransactions);
+        document.getElementById('trans-filter-category').addEventListener('change', filterTransactions);
+        document.getElementById('trans-filter-account').addEventListener('change', filterTransactions);
+        document.getElementById('trans-filter-date').addEventListener('change', filterTransactions);
+
+        // Handle Transaction Details Save (Mock)
+        document.getElementById('transaction-details-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showToast('✔ Transaction updated successfully!');
+            closeModal(transactionDetailsModal);
+        });
+
+        // Generic listener for all close buttons in modals
+        document.querySelectorAll('[data-close-for], .cancel-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // For cancel buttons, find the closest modal overlay
+                const modalToClose = button.dataset.closeFor
+                    ? document.getElementById(button.dataset.closeFor)
+                    : button.closest('.modal-overlay');
+                closeModal(modalToClose);
+            });
+        });
+
+        // Listener for recurring income toggle
+        document.getElementById('recurring-income').addEventListener('change', (event) => {
+            document.getElementById('recurring-day-group').classList.toggle('hidden', !event.target.checked);
+        });
+
+        // Listener for income category to show/hide tax tagging
+        incomeCategorySelect.addEventListener('change', (event) => {
+            const selectedCategory = event.target.value;
+            const taxTaggingGroup = document.getElementById('tax-tagging-group');
+            if (selectedCategory === 'salary' || selectedCategory === 'business') {
+                taxTaggingGroup.classList.remove('hidden');
+            } else {
+                taxTaggingGroup.classList.add('hidden');
+            }
+        });
+
+        // Listeners for tax calculator inputs
+        taxRegionSelect.addEventListener('change', updateTaxDetails);
+        document.querySelectorAll('input[name="tax-type"]').forEach(radio => radio.addEventListener('change', updateTaxDetails));
+
+        // Handle form submission
+        taxForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            // --- SIMULATED CALCULATION & RESULTS ---
+            const taxableIncome = 255000;
+            const grossTax = 28800;
+            const deductions = 3300;
+            const netIncome = taxableIncome - (grossTax - deductions);
+            const remainingTax = grossTax - deductions;
+            const monthlyTax = remainingTax / 12;
+
+            // Populate summary cards
+            document.getElementById('result-remaining-tax').textContent = `KES ${remainingTax.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('result-monthly-tax').textContent = `KES ${monthlyTax.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('result-annual-tax').textContent = `KES ${remainingTax.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+            // Render the charts with the new data
+            renderTaxCharts({ netIncome, grossTax, monthlyTax });
+
+            // Show the results and recalculate button
+            document.getElementById('calculate-tax-submit-btn').classList.add('hidden');
+            document.getElementById('tax-results-section').classList.remove('hidden');
+            document.getElementById('tax-results-actions').classList.remove('hidden');
+        });
+
+        document.getElementById('recalculate-tax-btn').addEventListener('click', () => {
+            // Hide results and post-calculation buttons
+            document.getElementById('tax-results-section').classList.add('hidden');
+            document.getElementById('tax-results-actions').classList.add('hidden');
+            // Show the initial calculate button
+            document.getElementById('calculate-tax-submit-btn').classList.remove('hidden');
+            if (taxPieChartInstance) taxPieChartInstance.destroy();
+            if (taxBarGraphInstance) taxBarGraphInstance.destroy();
+        });
+
+        // --- Bank Linking Flow ---
+        const bankSelectionView = document.getElementById('bank-selection-view');
+        const bankConnectionView = document.getElementById('bank-connection-view');
+        const bankPermissionView = document.getElementById('bank-permission-view');
+        const bankLoadingView = document.getElementById('bank-loading-view');
+        const bankModalTitle = bankModal.querySelector('h2');
+
+        document.querySelectorAll('.bank-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const bankName = item.querySelector('span').textContent;
+                bankModalTitle.textContent = `Connect to ${bankName}`;
+                bankSelectionView.classList.add('hidden');
+                bankConnectionView.classList.remove('hidden');
+            });
+        });
+
+        document.getElementById('back-to-bank-list').addEventListener('click', () => {
+            bankModalTitle.textContent = 'Link Your Bank Account';
+            bankSelectionView.classList.remove('hidden');
+            bankConnectionView.classList.add('hidden');
+        });
+
+        document.getElementById('back-to-connection-method').addEventListener('click', () => {
+            const bankName = bankModalTitle.textContent.replace('Connect to ', '');
+            bankModalTitle.textContent = `Connect to ${bankName}`;
+            bankPermissionView.classList.add('hidden');
+            bankConnectionView.classList.remove('hidden');
+        });
+
+        document.getElementById('connect-securely-btn').addEventListener('click', () => {
+            bankModalTitle.textContent = 'Review Permissions';
+            bankConnectionView.classList.add('hidden');
+            bankPermissionView.classList.remove('hidden');
+        });
+
+        document.getElementById('agree-and-connect-btn').addEventListener('click', () => {
+            bankModalTitle.textContent = 'Connecting...';
+            bankPermissionView.classList.add('hidden');
+            bankLoadingView.classList.remove('hidden');
+
+            // Simulate redirection and success
+            setTimeout(() => {
+                closeModal(bankModal);
+                showToast('✔ Bank account linked successfully!');
+                // In a real app, you would handle the callback from the bank here.
+            }, 3000);
+        });
+
+        // Bank Search Functionality
+        document.getElementById('bank-search').addEventListener('keyup', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const bankItems = document.querySelectorAll('#bank-list .bank-item');
+
+            bankItems.forEach(item => {
+                const bankName = item.querySelector('span').textContent.toLowerCase();
+                if (bankName.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        expenseForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent the default form submission (page reload)
+            if (!expenseForm.checkValidity()) {
+                expenseForm.reportValidity();
+                return;
+            }
+
+            // Collect data from the form
+            const expenseName = document.getElementById('expense-name').value;
+            const expenseAmount = parseFloat(document.getElementById('expense-amount').value);
+            const expenseDate = new Date(document.getElementById('expense-date').value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const expenseCategory = document.getElementById('expense-category').value;
+            const expenseCurrency = document.getElementById('expense-currency').value;
+
+            // Capture advanced feature data
+            const isRecurring = document.getElementById('recurring-expense').checked;
+            const isBusiness = document.getElementById('business-expense').checked;
+            const isTaxDeductible = document.getElementById('tax-deduction').checked;
+
+            const expenseData = {
+                name: expenseName,
+                category: expenseCategory,
+                amount: expenseAmount,
+                currency: expenseCurrency,
+                date: expenseDate,
+                notes: document.getElementById('expense-notes').value,
+                recurring: isRecurring,
+                business: isBusiness,
+                taxDeductible: isTaxDeductible,
+            };
+
+            // Simulate conversion and log it
+            const convertedAmount = convertCurrency(expenseAmount, expenseCurrency, DASHBOARD_CURRENCY);
+            console.log('Saving Expense:', expenseData);
+            console.log(`Original: ${expenseAmount.toFixed(2)} ${expenseCurrency}. Converted to default: ${convertedAmount.toFixed(2)} ${DASHBOARD_CURRENCY}`);
+
+
+            // 1. Show success notification
+            showToast('✔ Expense added successfully!');
+
+            // 2. Dashboard updates instantly
+            // Update Monthly Expenses Card
+            const expensesAmountEl = document.getElementById('monthly-expenses-amount');
+            const currentExpenses = parseFloat(expensesAmountEl.textContent.replace(/[^0-9.-]+/g,""));
+            const newTotalExpenses = currentExpenses + convertedAmount;
+            expensesAmountEl.innerHTML = `${DASHBOARD_CURRENCY} ${newTotalExpenses.toFixed(2)} <i class="fas fa-arrow-up trend-up"></i>`; // Example update
+
+            // Add new row to Recent Activity
+            const activityTableBody = document.getElementById('activity-tbody');
+            const newRow = `<tr>
+                                <td>${expenseName}</td>
+                                <td style="text-transform: capitalize;">${expenseCategory}</td>
+                                <td>${expenseDate}</td>
+                                <td class="amount negative text-right">-${expenseAmount.toFixed(2)} ${expenseCurrency}</td>
+                            </tr>`;
+            activityTableBody.insertAdjacentHTML('afterbegin', newRow);
+
+            // 3. The modal closes automatically
+            closeModal(expenseModal); // Close the modal after "saving"
+        });
+
+        // Handle Income form submission
+        incomeForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (!incomeForm.checkValidity()) {
+                incomeForm.reportValidity();
+                return;
+            }
+
+            // Collect data
+            const incomeSource = document.getElementById('income-source').value;
+            const incomeAmount = parseFloat(document.getElementById('income-amount').value);
+            const incomeCurrency = document.getElementById('income-currency').value;
+            const incomeCategory = document.getElementById('income-category').value;
+            const incomeDate = new Date(document.getElementById('income-date').value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            // Collect pro feature data
+            const isRecurring = document.getElementById('recurring-income').checked;
+            const recurringDay = isRecurring ? document.getElementById('recurring-day').value : null;
+            const autoTax = document.querySelector('input[name="auto-tax"]:checked').value;
+            const incomeSlip = document.getElementById('income-slip-upload').files[0];
+
+            const incomeData = {
+                source: incomeSource,
+                amount: incomeAmount,
+                currency: incomeCurrency,
+                category: incomeCategory,
+                date: incomeDate,
+                recurring: { status: isRecurring, day: recurringDay },
+                autoTax: autoTax,
+                slip: incomeSlip ? incomeSlip.name : null,
+                account: document.getElementById('income-account').value,
+                notes: document.getElementById('income-notes').value,
+            };
+
+            console.log('Saving Income:', incomeData);
+
+            // --- Dashboard Updates Instantly ---
+            const convertedIncome = convertCurrency(incomeAmount, incomeCurrency, DASHBOARD_CURRENCY);
+
+            // Helper function to update a card's value
+            const updateCardValue = (elementId, valueToAdd) => {
+                const element = document.getElementById(elementId);
+                const currentValue = parseFloat(element.textContent.replace(/[^0-9.-]+/g, ""));
+                const newValue = currentValue + valueToAdd;
+                element.textContent = `${DASHBOARD_CURRENCY} ${newValue.toFixed(2)}`;
+            };
+
+            updateCardValue('total-balance-amount', convertedIncome);
+            updateCardValue('monthly-income-amount', convertedIncome);
+            updateCardValue('monthly-surplus-amount', convertedIncome);
+            // In a real app, you would also trigger tax recalculation and graph updates here.
+
+            // 1. Show success notification
+            showToast('✔ Income added successfully!');
+
+            // 2. Update UI (add to recent activity)
+            const activityTableBody = document.getElementById('activity-tbody');
+            const newRow = `<tr>
+                                <td>${incomeSource}</td>
+                                <td style="text-transform: capitalize;">${incomeCategory}</td>
+                                <td>${incomeDate}</td>
+                                <td class="amount positive text-right">+${incomeAmount.toFixed(2)} ${incomeCurrency}</td>
+                            </tr>`;
+            activityTableBody.insertAdjacentHTML('afterbegin', newRow);
+
+            // 3. Close modal
+            closeModal(incomeModal);
+        });
+
+        // Handle Payment form submission
+        paymentForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (!paymentForm.checkValidity()) {
+                paymentForm.reportValidity();
+                return;
+            }
+
+            const amount = document.getElementById('payment-amount').value;
+            const currency = document.getElementById('payment-currency').value;
+            const category = document.getElementById('payment-category').value;
+            const date = new Date(document.getElementById('payment-date').value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            // Update Recent Activity
+            const activityTableBody = document.getElementById('activity-tbody');
+            const newRow = `<tr>
+                                <td>Payment: ${category}</td>
+                                <td>${category}</td>
+                                <td>${date}</td>
+                                <td class="amount negative text-right">-${parseFloat(amount).toFixed(2)} ${currency}</td>
+                            </tr>`;
+            activityTableBody.insertAdjacentHTML('afterbegin', newRow);
+
+            showToast('✔ Payment recorded successfully!');
+            closeModal(paymentModal);
+        });
+
+        // Handle Profile form submission
+        profileForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const newName = document.getElementById('profile-name').value;
+            
+            // Update UI with new name
+            document.querySelector('.user-profile span').textContent = `Hello, ${newName}`;
+            document.querySelector('.welcome-banner h1').textContent = `Welcome back, ${newName}`;
+
+            showToast('✔ Profile updated successfully!');
+            closeModal(profileModal);
+        });
+
+        // Handle Notification form submission
+        notificationForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            showToast('✔ Notification preferences saved!');
+            closeModal(notificationModal);
+        });
+
+        // Handle Logout
+        if (logoutBtn) {
+            logoutBtn.style.cursor = 'pointer';
+            logoutBtn.addEventListener('click', () => {
+                window.location.href = 'landing.html';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize - BalanceIQ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        /* Container */
+        .signup-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        /* Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .brand-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a3e73;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .brand-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #444;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background-color: white;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #1a3e73;
+        }
+        
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .radio-label:hover {
+            background-color: #f8f9fa;
+            border-color: #ddd;
+        }
+        .radio-label input[type="radio"] {
+            accent-color: #1a3e73;
+            transform: scale(1.2);
+        }
+
+        /* Button */
+        .btn-signup {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #1a3e73;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-signup:hover {
+            background-color: #132c54;
+        }
+        
+        /* Footer Link */
+        .skip-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .skip-link a {
+            color: #888;
+            text-decoration: none;
+        }
+        .skip-link a:hover {
+            text-decoration: underline;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <div class="brand-header">
+            <a href="landing.html" class="brand-logo">BalanceIQ</a>
+            <p>Let's personalize your experience.</p>
+        </div>
+        
+        <form id="onboarding-form">
+            <div class="form-group">
+                <label for="country">Country (for Tax Logic)</label>
+                <select id="country" class="form-control" required>
+                    <option value="" disabled selected>Select your country</option>
+                    <option value="Kenya">Kenya</option>
+                    <option value="Uganda">Uganda</option>
+                    <option value="USA">USA</option>
+                    <option value="UK">UK</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="currency">Preferred Currency</label>
+                <select id="currency" class="form-control" required>
+                    <option value="KES">KES (Kenyan Shilling)</option>
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                    <option value="GBP">GBP (British Pound)</option>
+                    <option value="NGN">NGN (Nigerian Naira)</option>
+                    <option value="ZAR">ZAR (South African Rand)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Primary Goal</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="goal" value="spending"> Track spending
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="goal" value="taxes"> Manage taxes
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="goal" value="debts"> Control debts
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="goal" value="all" checked> All of the above
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-signup">Complete Setup</button>
+        </form>
+        
+        <div class="skip-link">
+            <a href="index.html">Skip for now</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('onboarding-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('.btn-signup');
+            btn.textContent = 'Finalizing Setup...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
