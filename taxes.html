@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxes - BalanceIQ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Base Styles matching BalanceIQ theme */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8f9fa;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --border-color: #eeeeee;
+            --primary-color: #1a3e73;
+        }
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --bg-subtle: #2c2c2c;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #333333;
+            --primary-color: #64b5f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 2rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        /* Tax Period Selector (Disabled) */
+        .tax-period-select {
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: var(--bg-subtle);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            outline: none;
+        }
+        
+        /* Tax Summary Card */
+        .tax-summary-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 4rem 2rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Empty State */
+        .empty-state-icon {
+            font-size: 3.5rem;
+            color: #cbd5e0;
+            margin-bottom: 1.5rem;
+        }
+        .empty-state-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        /* Paid vs Owed Metrics */
+        .tax-metrics {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        .metric-item {
+            padding: 1.5rem;
+            background: var(--bg-subtle);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .metric-value.owed { color: #d32f2f; }
+        .metric-value.paid { color: #2e7d32; }
+        
+        /* Toggle Switch */
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch-control { display: inline-block; height: 24px; position: relative; width: 50px; }
+        .theme-switch-control input { display: none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px; }
+        .slider:before { background-color: #fff; bottom: 3px; content: ""; height: 18px; left: 3px; position: absolute; transition: .4s; width: 18px; border-radius: 50%; z-index: 2; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider .fa-sun { color: #f39c12; font-size: 12px; }
+        .slider .fa-moon { color: #f1c40f; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="dashboard.html" style="color: var(--primary-color); text-decoration: none; font-size: 1.2rem;" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="page-title">Taxes</h1>
+            </div>
+            <div class="theme-switch-wrapper" title="Switch theme" style="margin-right: 1rem;">
+                <label class="theme-switch-control" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round">
+                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </label>
+            </div>
+            <select class="tax-period-select" disabled>
+                <option>Current Tax Year</option>
+            </select>
+        </div>
+        
+        <div class="tax-summary-card">
+            <!-- Paid vs Owed (Hidden by default for empty state) -->
+            <div class="tax-metrics" style="display: none;">
+                <div class="metric-item">
+                    <span class="metric-label">Total Tax Paid</span>
+                    <div class="metric-value paid">$0.00</div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Tax Still Owed</span>
+                    <div class="metric-value owed">$0.00</div>
+                </div>
+            </div>
+
+            <!-- Empty / Placeholder State -->
+            <div class="empty-state">
+                <i class="fas fa-file-invoice-dollar empty-state-icon"></i>
+                <p class="empty-state-text">Tax calculations will appear here once income is added.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Theme Toggle Logic
+        const toggleSwitch = document.querySelector('.theme-switch-control input[type="checkbox"]');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'dark') toggleSwitch.checked = true;
+        }
+
+        toggleSwitch.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }    
+        });
+    </script>
+</body>
+</html>

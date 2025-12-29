@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts - BalanceIQ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Base Styles matching BalanceIQ theme */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8f9fa;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --border-color: #eeeeee;
+            --primary-color: #1a3e73;
+            --input-bg: #ffffff;
+            --bg-accent: #f5f7fa;
+        }
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --bg-subtle: #2c2c2c;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #333333;
+            --primary-color: #64b5f6;
+            --input-bg: #2c2c2c;
+            --bg-accent: #2c2c2c;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 2rem; transition: background-color 0.3s, color 0.3s; }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        /* Header */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+
+        /* Placeholder Message */
+        .info-banner {
+            background-color: var(--bg-accent);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+        }
+
+        /* Account Grid */
+        .accounts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .account-card { background: var(--bg-card); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color); transition: transform 0.2s; position: relative; overflow: hidden; }
+        .account-card:hover { transform: translateY(-3px); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .account-icon { width: 45px; height: 45px; background: var(--bg-accent); color: var(--primary-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        
+        .account-name { font-weight: 600; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.3rem; }
+        .account-type { font-size: 0.85rem; color: var(--text-secondary); }
+        
+        .status-badge { 
+            display: inline-block; 
+            padding: 0.3rem 0.8rem; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            background: #ffebee; 
+            color: #c62828; 
+            margin-top: 1rem;
+        }
+        
+        .connect-btn {
+            margin-top: 1.5rem;
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border-radius: 6px;
+            color: #999;
+            cursor: not-allowed;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Toggle Switch */
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch-control { display: inline-block; height: 24px; position: relative; width: 50px; }
+        .theme-switch-control input { display: none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px; }
+        .slider:before { background-color: #fff; bottom: 3px; content: ""; height: 18px; left: 3px; position: absolute; transition: .4s; width: 18px; border-radius: 50%; z-index: 2; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider .fa-sun { color: #f39c12; font-size: 12px; }
+        .slider .fa-moon { color: #f1c40f; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="header-left">
+                <a href="dashboard.html" style="color: var(--primary-color); font-size: 1.2rem; text-decoration: none; margin-right: 1rem;" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="page-title">Accounts</h1>
+            </div>
+            <div class="theme-switch-wrapper" title="Switch theme">
+                <label class="theme-switch-control" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round">
+                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="info-banner">
+            <i class="fas fa-info-circle"></i>
+            <span>Account connections will be available soon.</span>
+        </div>
+
+        <div class="accounts-grid">
+            <!-- Bank Card -->
+            <div class="account-card">
+                <div class="card-header">
+                    <div>
+                        <div class="account-name">Bank Account</div>
+                        <div class="account-type">Checking / Savings</div>
+                    </div>
+                    <div class="account-icon"><i class="fas fa-university"></i></div>
+                </div>
+                <span class="status-badge">Not connected</span>
+                <button class="connect-btn" disabled>Connect</button>
+            </div>
+
+            <!-- Mobile Money Card -->
+            <div class="account-card">
+                <div class="card-header">
+                    <div>
+                        <div class="account-name">Mobile Money</div>
+                        <div class="account-type">M-Pesa / Airtel</div>
+                    </div>
+                    <div class="account-icon"><i class="fas fa-mobile-alt"></i></div>
+                </div>
+                <span class="status-badge">Not connected</span>
+                <button class="connect-btn" disabled>Connect</button>
+            </div>
+
+            <!-- Cash Card -->
+            <div class="account-card">
+                <div class="card-header">
+                    <div>
+                        <div class="account-name">Cash Wallet</div>
+                        <div class="account-type">Physical Cash</div>
+                    </div>
+                    <div class="account-icon"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+                <span class="status-badge">Not connected</span>
+                <button class="connect-btn" disabled>Connect</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Theme Toggle Logic
+        const toggleSwitch = document.querySelector('.theme-switch-control input[type="checkbox"]');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'dark') toggleSwitch.checked = true;
+        }
+
+        toggleSwitch.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }    
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debts - BalanceIQ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Base Styles matching BalanceIQ theme */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8f9fa;
+            --text-main: #333333;
+            --text-secondary: #666666;
+            --border-color: #eeeeee;
+            --primary-color: #1a3e73;
+            --input-bg: #ffffff;
+            --bg-accent: #e3f2fd;
+        }
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --bg-subtle: #2c2c2c;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #333333;
+            --primary-color: #64b5f6;
+            --input-bg: #2c2c2c;
+            --bg-accent: rgba(100, 181, 246, 0.15);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 2rem; transition: background-color 0.3s, color 0.3s; }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        /* Header */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        
+        /* Controls */
+        .controls-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .btn-primary { background-color: var(--primary-color); color: white; border: none; padding: 0.7rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s; }
+        .btn-primary:hover { background-color: #132c54; }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 5rem 2rem; background: var(--bg-card); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        .empty-state-icon { font-size: 3.5rem; color: #cbd5e0; margin-bottom: 1.5rem; }
+        .empty-state-text { color: var(--text-secondary); font-size: 1.1rem; font-weight: 500; }
+
+        /* Debt Grid */
+        .debt-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .debt-card { background: var(--bg-card); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color); transition: transform 0.2s; }
+        .debt-card:hover { transform: translateY(-3px); }
+        .debt-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .debt-icon { width: 40px; height: 40px; background: var(--bg-accent); color: var(--primary-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .debt-name { font-weight: 600; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.2rem; }
+        .debt-category { font-size: 0.85rem; color: var(--text-secondary); }
+        .debt-balance { font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; }
+        .debt-meta { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.8rem; display: flex; justify-content: space-between; }
+        
+        /* Progress Bar */
+        .progress-container { height: 8px; background-color: var(--bg-body); border-radius: 4px; overflow: hidden; margin-top: 1rem; }
+        .progress-bar { height: 100%; background-color: var(--primary-color); width: 0%; border-radius: 4px; transition: width 1s ease; }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s; }
+        .modal-content { background: var(--bg-card); padding: 2rem; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-main); font-size: 0.95rem; }
+        .form-control { width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; background-color: var(--input-bg); color: var(--text-main); }
+        .form-control:focus { outline: none; border-color: var(--primary-color); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+        .btn-secondary { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.7rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+        .btn-secondary:hover { background: var(--bg-body); }
+        
+        /* Toggle Switch */
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch-control { display: inline-block; height: 24px; position: relative; width: 50px; }
+        .theme-switch-control input { display: none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; border-radius: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px; }
+        .slider:before { background-color: #fff; bottom: 3px; content: ""; height: 18px; left: 3px; position: absolute; transition: .4s; width: 18px; border-radius: 50%; z-index: 2; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider .fa-sun { color: #f39c12; font-size: 12px; }
+        .slider .fa-moon { color: #f1c40f; font-size: 12px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="header-left">
+                <a href="dashboard.html" style="color: var(--primary-color); font-size: 1.2rem; text-decoration: none; margin-right: 1rem;" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="page-title">Debts</h1>
+            </div>
+            <div class="theme-switch-wrapper" title="Switch theme">
+                <label class="theme-switch-control" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round">
+                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <button id="add-debt-btn" class="btn-primary"><i class="fas fa-plus"></i> Add Debt</button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state">
+            <i class="fas fa-credit-card empty-state-icon"></i>
+            <p class="empty-state-text">You’re not tracking any debts yet.</p>
+        </div>
+
+        <!-- Debt Grid -->
+        <div id="debt-grid" class="debt-grid">
+            <!-- Cards will be added here -->
+        </div>
+    </div>
+
+    <!-- Add Debt Modal -->
+    <div id="debt-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary-color); font-size: 1.5rem;">Add New Debt</h2>
+            <form id="debt-form">
+                <div class="form-group">
+                    <label>Debt Name</label>
+                    <input type="text" id="debt-name" class="form-control" placeholder="e.g. Student Loan" required>
+                </div>
+                <div class="form-group">
+                    <label>Total Amount (Original Loan)</label>
+                    <input type="number" id="total-amount" class="form-control" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Current Balance (Remaining)</label>
+                    <input type="number" id="current-balance" class="form-control" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-btn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Debt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('debt-modal');
+        const addBtn = document.getElementById('add-debt-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const form = document.getElementById('debt-form');
+        const emptyState = document.getElementById('empty-state');
+        const gridContainer = document.getElementById('debt-grid');
+
+        addBtn.onclick = () => { modal.style.display = 'flex'; document.getElementById('debt-name').focus(); };
+        const closeModal = () => { modal.style.display = 'none'; form.reset(); };
+        cancelBtn.onclick = closeModal;
+        modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+        
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('debt-name').value;
+            const total = parseFloat(document.getElementById('total-amount').value);
+            const current = parseFloat(document.getElementById('current-balance').value);
+            const paid = total - current;
+            const progress = Math.max(0, Math.min(100, (paid / total) * 100));
+
+            emptyState.style.display = 'none';
+            gridContainer.style.display = 'grid';
+
+            const card = `<div class="debt-card"><div class="debt-header"><div><div class="debt-name">${name}</div><div class="debt-category">Loan</div></div><div class="debt-icon"><i class="fas fa-university"></i></div></div><div class="debt-balance">$${current.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div><div class="debt-meta"><span>Original: $${total.toLocaleString()}</span><span>${progress.toFixed(0)}% Paid</span></div><div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div></div>`;
+            gridContainer.insertAdjacentHTML('beforeend', card);
+            closeModal();
+        };
+
+        // Theme Toggle Logic
+        const toggleSwitch = document.querySelector('.theme-switch-control input[type="checkbox"]');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'dark') toggleSwitch.checked = true;
+        }
+
+        toggleSwitch.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }    
+        });
+    </script>
+</body>
+</html>
