@@ -127,11 +127,9 @@
         .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
         .mobile-only { display: none; }
 
+        /* Tablet & Mobile Styles (≤ 1024px) */
         @media (max-width: 1024px) {
-            .summary-cards { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 768px) {
+            /* Show Hamburger, Hide Horizontal Nav */
             .hamburger-menu { display: block; }
             .main-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100vh; background: var(--bg-card); z-index: 100; transition: left 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); padding-top: 20px; }
             .main-nav.active { left: 0; }
@@ -140,9 +138,18 @@
             .main-nav ul li a { display: block; padding: 15px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.1rem; }
             .mobile-overlay.active { display: block; }
             .mobile-only { display: block; }
+
+            /* Tablet Header: [ ☰ ] [ Logo ] [ User Icon ] */
+            .user-profile span { display: none; } /* Hide Name */
+            .user-profile .logout-icon { display: none; } /* Hide Logout (moved to menu) */
+            .user-profile .theme-switch-wrapper { display: none; } /* Hide Theme Switch (moved to menu) */
             
-            /* Hide desktop profile text */
-            .user-profile span { display: none; } 
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            /* Mobile Header: [ ☰ ] [ Logo ] */
+            .user-profile { display: none; } /* Hide User Icon on Mobile */
 
             /* Layout */
             .summary-cards { grid-template-columns: 1fr; }
@@ -178,6 +185,17 @@
                 <li><a href="debts.html">Debts</a></li>
                 <li><a href="accounts.html">Accounts</a></li>
                 <li><a href="settings.html">Settings</a></li>
+                <!-- Mobile Menu Items -->
+                <li class="mobile-only" style="padding: 15px 25px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>Dark Mode</span>
+                    <label class="theme-switch" for="checkbox-mobile">
+                        <input type="checkbox" id="checkbox-mobile" />
+                        <div class="slider round">
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                        </div>
+                    </label>
+                </li>
                 <li class="mobile-only"><a href="index.html">Logout</a></li>
             </ul>
         </nav>
@@ -1822,18 +1840,22 @@
         }
 
         // --- Theme Toggle Logic ---
-        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        const toggleSwitches = document.querySelectorAll('.theme-switch input[type="checkbox"]');
         const currentTheme = localStorage.getItem('theme');
 
         if (currentTheme) {
             document.documentElement.setAttribute('data-theme', currentTheme);
             if (currentTheme === 'dark') {
-                toggleSwitch.checked = true;
+                toggleSwitches.forEach(s => s.checked = true);
             }
         }
 
         function switchTheme(e) {
-            if (e.target.checked) {
+            const isChecked = e.target.checked;
+            // Sync all switches
+            toggleSwitches.forEach(s => s.checked = isChecked);
+            
+            if (isChecked) {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
             } else {
@@ -1841,7 +1863,7 @@
                 localStorage.setItem('theme', 'light');
             }    
         }
-        toggleSwitch.addEventListener('change', switchTheme);
+        toggleSwitches.forEach(s => s.addEventListener('change', switchTheme));
     </script>
 </body>
 </html>
