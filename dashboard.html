@@ -121,13 +121,56 @@
             margin-bottom: 15px;
             display: block;
         }
+
+        /* Mobile & Responsive Styles */
+        .hamburger-menu { display: none; font-size: 1.5rem; background: none; border: none; color: var(--text-main); cursor: pointer; margin-right: 15px; }
+        .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
+        .mobile-only { display: none; }
+
+        @media (max-width: 1024px) {
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-menu { display: block; }
+            .main-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100vh; background: var(--bg-card); z-index: 100; transition: left 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); padding-top: 20px; }
+            .main-nav.active { left: 0; }
+            .main-nav ul { flex-direction: column; padding: 0; }
+            .main-nav ul li { width: 100%; }
+            .main-nav ul li a { display: block; padding: 15px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.1rem; }
+            .mobile-overlay.active { display: block; }
+            .mobile-only { display: block; }
+            
+            /* Hide desktop profile text */
+            .user-profile span { display: none; } 
+
+            /* Layout */
+            .summary-cards { grid-template-columns: 1fr; }
+            .quick-actions { flex-direction: column; }
+            .action-btn { width: 100%; justify-content: center; padding: 15px; font-size: 1rem; }
+            
+            /* Tables to Cards */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { margin-bottom: 15px; background: var(--bg-card); border-radius: 8px; padding: 15px; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            td { border: none; position: relative; padding-left: 0; text-align: right; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+            td:before { position: static; white-space: nowrap; font-weight: bold; content: attr(data-label); color: var(--text-secondary); margin-right: auto; }
+            td:last-child { border-bottom: 0; padding-bottom: 0; }
+            .text-right { text-align: right; }
+
+            /* Modals */
+            .modal-content { width: 100%; height: 100%; max-width: none; border-radius: 0; display: flex; flex-direction: column; }
+            .modal-body { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+            .modal-header { padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
     <header class="main-header">
+        <button id="mobile-menu-btn" class="hamburger-menu"><i class="fas fa-bars"></i></button>
         <a href="dashboard.html" class="logo" style="text-decoration: none;">BalanceIQ</a>
-        <nav class="main-nav">
+        <nav class="main-nav" id="main-nav">
             <ul>
                 <li><a href="#" class="active">Dashboard</a></li>
                 <li><a href="taxes.html">Taxes</a></li>
@@ -135,6 +178,7 @@
                 <li><a href="debts.html">Debts</a></li>
                 <li><a href="accounts.html">Accounts</a></li>
                 <li><a href="settings.html">Settings</a></li>
+                <li class="mobile-only"><a href="index.html">Logout</a></li>
             </ul>
         </nav>
         <div class="user-profile">
@@ -154,6 +198,7 @@
     </header>
 
     <main class="dashboard">
+        <div class="mobile-overlay" id="mobile-overlay"></div>
         <div id="dashboard-content">
         <section class="welcome-banner">
             <h1>Welcome back, User</h1>
@@ -247,28 +292,28 @@
                     </thead>
                     <tbody id="activity-tbody">
                         <tr>
-                            <td>Monthly Salary</td>
-                            <td>Income</td>
-                            <td>Oct 25, 2023</td>
-                            <td class="amount positive text-right">+$3,600.00</td>
+                            <td data-label="Title">Monthly Salary</td>
+                            <td data-label="Category">Income</td>
+                            <td data-label="Date">Oct 25, 2023</td>
+                            <td data-label="Amount" class="amount positive text-right">+$3,600.00</td>
                         </tr>
                         <tr>
-                            <td>Starbucks Coffee</td>
-                            <td>Food & Drink</td>
-                            <td>Oct 26, 2023</td>
-                            <td class="amount negative text-right">-$5.75</td>
+                            <td data-label="Title">Starbucks Coffee</td>
+                            <td data-label="Category">Food & Drink</td>
+                            <td data-label="Date">Oct 26, 2023</td>
+                            <td data-label="Amount" class="amount negative text-right">-$5.75</td>
                         </tr>
                         <tr>
-                            <td>Netflix Subscription</td>
-                            <td>Entertainment</td>
-                            <td>Oct 24, 2023</td>
-                            <td class="amount negative text-right">-$15.49</td>
+                            <td data-label="Title">Netflix Subscription</td>
+                            <td data-label="Category">Entertainment</td>
+                            <td data-label="Date">Oct 24, 2023</td>
+                            <td data-label="Amount" class="amount negative text-right">-$15.49</td>
                         </tr>
                         <tr>
-                            <td>Rent Payment</td>
-                            <td>Housing</td>
-                            <td>Oct 22, 2023</td>
-                            <td class="amount negative text-right">-$1,800.00</td>
+                            <td data-label="Title">Rent Payment</td>
+                            <td data-label="Category">Housing</td>
+                            <td data-label="Date">Oct 22, 2023</td>
+                            <td data-label="Amount" class="amount negative text-right">-$1,800.00</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1068,6 +1113,25 @@
         let reportIncomeChart;
         let reportExpenseChart;
 
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mainNav = document.getElementById('main-nav');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        if(mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mainNav.classList.toggle('active');
+                mobileOverlay.classList.toggle('active');
+            });
+        }
+        
+        if(mobileOverlay) {
+            mobileOverlay.addEventListener('click', () => {
+                mainNav.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+            });
+        }
+
         // Function to open the expense modal
         const openExpenseModal = () => {
             // Reset form for a clean slate
@@ -1622,10 +1686,10 @@
             // Add new row to Recent Activity
             const activityTableBody = document.getElementById('activity-tbody');
             const newRow = `<tr>
-                                <td>${expenseName}</td>
-                                <td style="text-transform: capitalize;">${expenseCategory}</td>
-                                <td>${expenseDate}</td>
-                                <td class="amount negative text-right">-${expenseAmount.toFixed(2)} ${expenseCurrency}</td>
+                                <td data-label="Title">${expenseName}</td>
+                                <td data-label="Category" style="text-transform: capitalize;">${expenseCategory}</td>
+                                <td data-label="Date">${expenseDate}</td>
+                                <td data-label="Amount" class="amount negative text-right">-${expenseAmount.toFixed(2)} ${expenseCurrency}</td>
                             </tr>`;
             activityTableBody.insertAdjacentHTML('afterbegin', newRow);
 
@@ -1691,10 +1755,10 @@
             // 2. Update UI (add to recent activity)
             const activityTableBody = document.getElementById('activity-tbody');
             const newRow = `<tr>
-                                <td>${incomeSource}</td>
-                                <td style="text-transform: capitalize;">${incomeCategory}</td>
-                                <td>${incomeDate}</td>
-                                <td class="amount positive text-right">+${incomeAmount.toFixed(2)} ${incomeCurrency}</td>
+                                <td data-label="Title">${incomeSource}</td>
+                                <td data-label="Category" style="text-transform: capitalize;">${incomeCategory}</td>
+                                <td data-label="Date">${incomeDate}</td>
+                                <td data-label="Amount" class="amount positive text-right">+${incomeAmount.toFixed(2)} ${incomeCurrency}</td>
                             </tr>`;
             activityTableBody.insertAdjacentHTML('afterbegin', newRow);
 
@@ -1718,10 +1782,10 @@
             // Update Recent Activity
             const activityTableBody = document.getElementById('activity-tbody');
             const newRow = `<tr>
-                                <td>Payment: ${category}</td>
-                                <td>${category}</td>
-                                <td>${date}</td>
-                                <td class="amount negative text-right">-${parseFloat(amount).toFixed(2)} ${currency}</td>
+                                <td data-label="Title">Payment: ${category}</td>
+                                <td data-label="Category">${category}</td>
+                                <td data-label="Date">${date}</td>
+                                <td data-label="Amount" class="amount negative text-right">-${parseFloat(amount).toFixed(2)} ${currency}</td>
                             </tr>`;
             activityTableBody.insertAdjacentHTML('afterbegin', newRow);
 

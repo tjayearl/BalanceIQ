@@ -480,13 +480,29 @@
             background-color: transparent;
             color: white;
         }
+
+        /* Mobile Nav */
+        .mobile-menu-btn { display: none; font-size: 1.5rem; background: none; border: none; color: #1a3e73; cursor: pointer; }
+        .mobile-nav-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: flex; flex-direction: column; position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; background: white; z-index: 100; transition: right 0.3s ease; padding-top: 60px; box-shadow: -2px 0 10px rgba(0,0,0,0.1); align-items: flex-start; }
+            .nav-links.active { right: 0; }
+            .nav-links a { width: 100%; padding: 15px 25px; border-bottom: 1px solid #eee; }
+            .nav-links .btn { margin: 10px 20px; width: calc(100% - 40px); text-align: center; }
+            .mobile-menu-btn { display: block; }
+            .mobile-nav-overlay.active { display: block; }
+            .btn-nav-login { margin-left: 20px; margin-top: 10px; }
+        }
     </style>
 </head>
 <body>
 
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
     <nav class="main-nav">
         <a href="index.html" class="logo">BalanceIQ</a>
-        <div class="nav-links">
+        <button class="mobile-menu-btn" id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        <div class="nav-links" id="nav-links">
             <a href="#how-it-works">How it Works</a>
             <a href="#features">Features</a>
             <a href="#security">Security</a>
@@ -725,5 +741,20 @@
         <p>&copy; 2025 BalanceIQ. All rights reserved.</p>
     </footer>
 
+    <script>
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const navLinks = document.getElementById('nav-links');
+        const overlay = document.getElementById('mobile-nav-overlay');
+
+        function toggleMenu() {
+            navLinks.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        mobileBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+        // Close menu when a link is clicked
+        document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', toggleMenu));
+    </script>
 </body>
 </html>
