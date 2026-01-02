@@ -100,6 +100,12 @@
         input:checked + .slider:before { transform: translateX(26px); }
         .slider .fa-sun { color: #f39c12; font-size: 12px; }
         .slider .fa-moon { color: #f1c40f; font-size: 12px; }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .accounts-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>

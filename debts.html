@@ -89,6 +89,14 @@
         .slider .fa-moon { color: #f1c40f; font-size: 12px; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .debt-grid { grid-template-columns: 1fr; }
+            .controls-bar { flex-direction: column; }
+            .btn-primary { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>

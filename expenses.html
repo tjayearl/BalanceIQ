@@ -88,6 +88,21 @@
         .slider .fa-moon { color: #f1c40f; font-size: 12px; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .controls-bar { flex-direction: column; gap: 10px; }
+            .btn-primary, .date-filter { width: 100%; justify-content: center; }
+            
+            /* Table to Cards */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { margin-bottom: 15px; background: var(--bg-card); border-radius: 8px; padding: 15px; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            td { border: none; position: relative; padding-left: 0; padding-right: 0; padding-top: 8px; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+            td:before { content: attr(data-label); font-weight: 600; color: var(--text-secondary); margin-right: auto; }
+            td:last-child { border-bottom: 0; }
+        }
     </style>
 </head>
 <body>
@@ -218,10 +233,10 @@
             // Add row
             const row = `
                 <tr>
-                    <td>${date}</td>
-                    <td>${desc}</td>
-                    <td><span class="category-tag">${cat}</span></td>
-                    <td style="text-align: right;" class="amount">-$${amt}</td>
+                    <td data-label="Date">${date}</td>
+                    <td data-label="Description">${desc}</td>
+                    <td data-label="Category"><span class="category-tag">${cat}</span></td>
+                    <td data-label="Amount" style="text-align: right;" class="amount">-$${amt}</td>
                 </tr>
             `;
             tbody.insertAdjacentHTML('afterbegin', row);

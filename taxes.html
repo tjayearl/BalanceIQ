@@ -137,6 +137,17 @@
         input:checked + .slider:before { transform: translateX(26px); }
         .slider .fa-sun { color: #f39c12; font-size: 12px; }
         .slider .fa-moon { color: #f1c40f; font-size: 12px; }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .page-header { flex-direction: column; align-items: stretch; gap: 1rem; }
+            .page-header > div:first-child { justify-content: space-between; width: 100%; }
+            .theme-switch-wrapper { position: absolute; top: 1.2rem; right: 1rem; }
+            .tax-period-select { width: 100%; }
+            .tax-metrics { grid-template-columns: 1fr; gap: 1rem; }
+            .tax-summary-card { padding: 2rem 1rem; min-height: auto; }
+        }
     </style>
 </head>
 <body>
@@ -148,7 +159,7 @@
                 </a>
                 <h1 class="page-title">Taxes</h1>
             </div>
-            <div class="theme-switch-wrapper" title="Switch theme" style="margin-right: 1rem;">
+            <div class="theme-switch-wrapper" title="Switch theme">
                 <label class="theme-switch-control" for="checkbox">
                     <input type="checkbox" id="checkbox" />
                     <div class="slider round">
