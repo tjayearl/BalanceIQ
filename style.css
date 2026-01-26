@@ -213,34 +213,35 @@ body {
 }
 
 .action-btn {
-    background-color: var(--sky-blue);
-    color: var(--white);
+    background-color: var(--primary-color);
+    color: var(--primary-color-text);
     border: none;
     border-radius: 20px;
     padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    transition: transform 0.2s ease-in-out, background-color 0.2s;
+    transition: transform 0.2s ease-in-out, background-color 0.2s, color 0.2s;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
 .action-btn:hover {
-    transform: scale(1.05);
-    background-color: var(--deep-blue);
+    transform: scale(1.02);
+    background-color: var(--primary-color-hover);
 }
 
 .action-btn.secondary {
-    background-color: #e9ecef; /* A light gray */
-    color: var(--dark-gray);
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
 }
 
 .action-btn.secondary:hover {
-    background-color: #ced4da; /* A slightly darker gray for hover */
-    color: var(--deep-blue);
-    transform: scale(1.05);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    transform: scale(1.02);
 }
 
 /* 6. Recent Activity Section */
@@ -678,14 +679,15 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--deep-blue);
-    color: var(--white);
+    background-color: var(--primary-color);
+    color: var(--primary-color-text);
+    transition: background-color 0.2s;
 }
 
 .btn-secondary {
-    background-color: var(--soft-gray);
-    color: var(--dark-gray);
-    border-color: #ced4da;
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
 }
 
 /* 10. Toast Notification */

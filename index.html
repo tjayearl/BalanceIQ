@@ -244,12 +244,6 @@
         .mock-value { font-size: 1.8rem; font-weight: bold; color: #333; margin-bottom: 10px; }
         .mock-value.negative { color: #d32f2f; }
         
-        .blur-text {
-            filter: blur(5px);
-            user-select: none;
-            opacity: 0.7;
-        }
-
         .mock-badge { display: inline-block; padding: 4px 10px; background: #ffebee; color: #c62828; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
         .mock-progress { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 5px; }
         .mock-progress-fill { height: 100%; background: #1a3e73; }
@@ -544,17 +538,17 @@
                 <div class="mock-grid">
                     <div class="mock-card">
                         <div class="mock-card-title">Monthly Spending</div>
-                        <div class="mock-value blur-text">$3,450.00</div>
+                        <div class="mock-value">$3,450.00</div>
                         <div class="mock-chart-placeholder"></div>
                     </div>
                     <div class="mock-card">
                         <div class="mock-card-title">Taxes Owed</div>
-                        <div class="mock-value negative blur-text">$1,250.00</div>
+                        <div class="mock-value negative">$1,250.00</div>
                         <div class="mock-badge">Due in 12 days</div>
                     </div>
                     <div class="mock-card">
                         <div class="mock-card-title">Debt Progress</div>
-                        <div class="mock-value blur-text">$15,200.00</div>
+                        <div class="mock-value">$15,200.00</div>
                         <div class="mock-progress"><div class="mock-progress-fill" style="width: 40%"></div></div>
                     </div>
                 </div>
@@ -739,6 +733,7 @@
 
     <footer>
         <p>&copy; 2025 BalanceIQ. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-weight: 500;">Tjay Earl — crafted product & code</p>
     </footer>
 
     <script>
