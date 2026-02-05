@@ -1,1 +1,2 @@
-export const API_BASE_URL = "https://balanceiq-backend.onrender.com";
+// Global backend URL configuration
+window.API_BASE_URL = "https://balanceiq-backend.onrender.com";

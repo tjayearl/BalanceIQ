@@ -236,8 +236,8 @@
         </div>
     </div>
 
-    <script type="module">
-        import { API_BASE_URL } from './src/api/config.js';
+    <script src="api/config.js"></script>
+    <script>
 
         if (!localStorage.getItem('access_token')) {
             window.location.href = 'login.html';
@@ -279,7 +279,7 @@
             const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
             try {
-                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                const response = await fetch(`${window.API_BASE_URL}/transactions`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

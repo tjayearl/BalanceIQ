@@ -207,8 +207,8 @@
         </div>
     </div>
 
-    <script type="module">
-        import { API_BASE_URL } from './src/api/config.js';
+    <script src="api/config.js"></script>
+    <script>
 
         if (!localStorage.getItem('access_token')) {
             window.location.href = 'login.html';
@@ -235,7 +235,7 @@
             const progress = Math.max(0, Math.min(100, (paid / total) * 100));
 
             try {
-                const response = await fetch(`${API_BASE_URL}/debts`, {
+                const response = await fetch(`${window.API_BASE_URL}/debts`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -170,8 +170,8 @@
         </div>
     </div>
 
-    <script type="module">
-        import { API_BASE_URL } from './src/api/config.js';
+    <script src="api/config.js"></script>
+    <script>
 
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -183,7 +183,7 @@
             btn.disabled = true;
             
             try {
-                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                const response = await fetch(`${window.API_BASE_URL}/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
