@@ -145,16 +145,44 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
+    <script type="module">
+        import { API_BASE_URL } from './src/api/config.js';
+
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = this.querySelector('.btn-signup');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
             btn.textContent = 'Creating Account...';
             btn.disabled = true;
             
-            setTimeout(() => {
-                window.location.href = 'signup-step2.html';
-            }, 800);
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    window.location.href = 'signup-step2.html';
+                } else {
+                    alert('Registration failed. Please try again.');
+                    btn.textContent = 'Create Account';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
         });
     </script>
 </body>

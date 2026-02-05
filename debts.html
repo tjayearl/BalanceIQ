@@ -119,8 +119,15 @@
         .main-nav a:hover, .main-nav a.active { color: var(--primary-color); }
         .user-profile { display: flex; align-items: center; gap: 15px; }
         .hamburger-menu { display: none; font-size: 1.5rem; background: none; border: none; color: var(--text-main); cursor: pointer; }
+        .user-profile .profile-icon { font-size: 1.5rem; color: var(--primary-color); }
+        .user-profile .logout-icon { font-size: 1.2rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
+        .user-profile .logout-icon:hover { color: #d32f2f; }
+        .user-profile span { font-weight: 500; font-size: 0.95rem; }
         .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
         .mobile-only { display: none; }
+        @media (max-width: 768px) {
+            .user-profile span, .user-profile .profile-icon, .user-profile .logout-icon { display: none; }
+        }
     </style>
 </head>
 <body style="padding: 0;">
@@ -136,7 +143,7 @@
                 <li><a href="debts.html" class="active">Debts</a></li>
                 <li><a href="accounts.html">Accounts</a></li>
                 <li><a href="settings.html">Settings</a></li>
-                <li class="mobile-only"><a href="index.html">Logout</a></li>
+                <li class="mobile-only"><a href="#" id="mobile-logout-btn">Logout</a></li>
             </ul>
         </nav>
         <div class="user-profile">
@@ -149,6 +156,9 @@
                     </div>
                 </label>
             </div>
+            <i class="fas fa-user-circle profile-icon"></i>
+            <span>Hello, User</span>
+            <i class="fas fa-sign-out-alt logout-icon" title="Logout"></i>
         </div>
     </header>
     <div class="container" style="padding: 2rem;">
@@ -197,7 +207,9 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { API_BASE_URL } from './src/api/config.js';
+
         const modal = document.getElementById('debt-modal');
         const addBtn = document.getElementById('add-debt-btn');
         const cancelBtn = document.getElementById('cancel-btn');
@@ -210,7 +222,7 @@
         cancelBtn.onclick = closeModal;
         modal.onclick = (e) => { if (e.target === modal) closeModal(); };
         
-        form.onsubmit = (e) => {
+        form.onsubmit = async (e) => {
             e.preventDefault();
             const name = document.getElementById('debt-name').value;
             const total = parseFloat(document.getElementById('total-amount').value);
@@ -218,12 +230,30 @@
             const paid = total - current;
             const progress = Math.max(0, Math.min(100, (paid / total) * 100));
 
-            emptyState.style.display = 'none';
-            gridContainer.style.display = 'grid';
+            try {
+                const response = await fetch(`${API_BASE_URL}/debts`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ name, total, current })
+                });
 
-            const card = `<div class="debt-card"><div class="debt-header"><div><div class="debt-name">${name}</div><div class="debt-category">Loan</div></div><div class="debt-icon"><i class="fas fa-university"></i></div></div><div class="debt-balance">$${current.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div><div class="debt-meta"><span>Original: $${total.toLocaleString()}</span><span>${progress.toFixed(0)}% Paid</span></div><div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div></div>`;
-            gridContainer.insertAdjacentHTML('beforeend', card);
-            closeModal();
+                if (response.ok) {
+                    emptyState.style.display = 'none';
+                    gridContainer.style.display = 'grid';
+
+                    const card = `<div class="debt-card"><div class="debt-header"><div><div class="debt-name">${name}</div><div class="debt-category">Loan</div></div><div class="debt-icon"><i class="fas fa-university"></i></div></div><div class="debt-balance">$${current.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div><div class="debt-meta"><span>Original: $${total.toLocaleString()}</span><span>${progress.toFixed(0)}% Paid</span></div><div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div></div>`;
+                    gridContainer.insertAdjacentHTML('beforeend', card);
+                    closeModal();
+                } else {
+                    alert('Failed to save debt.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error connecting to server.');
+            }
         };
 
         // Theme Toggle Logic
@@ -260,6 +290,16 @@
                 mobileOverlay.classList.remove('active');
             });
         }
+
+        // Logout Logic
+        const handleLogout = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            window.location.href = 'index.html';
+        };
+
+        document.querySelector('.logout-icon').addEventListener('click', handleLogout);
+        document.getElementById('mobile-logout-btn').addEventListener('click', handleLogout);
     </script>
 </body>
 </html>

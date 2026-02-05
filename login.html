@@ -170,19 +170,40 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', function(e) {
+    <script type="module">
+        import { API_BASE_URL } from './src/api/config.js';
+
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Simulate login process
             const btn = this.querySelector('.btn-login');
+            const email = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
             
             btn.textContent = 'Logging in...';
             btn.disabled = true;
             
-            setTimeout(() => {
-                // Redirect to dashboard
-                window.location.href = 'dashboard.html';
-            }, 800);
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.access_token) localStorage.setItem('access_token', data.access_token);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Login failed. Please check your credentials.');
+                    btn.textContent = 'Login';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+                btn.textContent = 'Login';
+                btn.disabled = false;
+            }
         });
     </script>
 </body>

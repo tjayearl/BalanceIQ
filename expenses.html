@@ -124,8 +124,15 @@
         .main-nav a:hover, .main-nav a.active { color: var(--primary-color); }
         .user-profile { display: flex; align-items: center; gap: 15px; }
         .hamburger-menu { display: none; font-size: 1.5rem; background: none; border: none; color: var(--text-main); cursor: pointer; }
+        .user-profile .profile-icon { font-size: 1.5rem; color: var(--primary-color); }
+        .user-profile .logout-icon { font-size: 1.2rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
+        .user-profile .logout-icon:hover { color: #d32f2f; }
+        .user-profile span { font-weight: 500; font-size: 0.95rem; }
         .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
         .mobile-only { display: none; }
+        @media (max-width: 768px) {
+            .user-profile span, .user-profile .profile-icon, .user-profile .logout-icon { display: none; }
+        }
     </style>
 </head>
 <body style="padding: 0;">
@@ -141,7 +148,7 @@
                 <li><a href="debts.html">Debts</a></li>
                 <li><a href="accounts.html">Accounts</a></li>
                 <li><a href="settings.html">Settings</a></li>
-                <li class="mobile-only"><a href="index.html">Logout</a></li>
+                <li class="mobile-only"><a href="#" id="mobile-logout-btn">Logout</a></li>
             </ul>
         </nav>
         <div class="user-profile">
@@ -154,6 +161,9 @@
                     </div>
                 </label>
             </div>
+            <i class="fas fa-user-circle profile-icon"></i>
+            <span>Hello, User</span>
+            <i class="fas fa-sign-out-alt logout-icon" title="Logout"></i>
         </div>
     </header>
     <div class="container" style="padding: 2rem;">
@@ -226,7 +236,9 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { API_BASE_URL } from './src/api/config.js';
+
         const modal = document.getElementById('expense-modal');
         const addBtn = document.getElementById('add-expense-btn');
         const cancelBtn = document.getElementById('cancel-btn');
@@ -254,7 +266,7 @@
         };
         
         // Form Submit Logic
-        form.onsubmit = (e) => {
+        form.onsubmit = async (e) => {
             e.preventDefault();
             
             const desc = document.getElementById('desc').value;
@@ -262,22 +274,40 @@
             const amt = parseFloat(document.getElementById('amount').value).toFixed(2);
             const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-            // Hide empty state, show list
-            emptyState.style.display = 'none';
-            listContainer.style.display = 'block';
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ description: desc, category: cat, amount: amt, type: 'expense' })
+                });
 
-            // Add row
-            const row = `
-                <tr>
-                    <td data-label="Date">${date}</td>
-                    <td data-label="Description">${desc}</td>
-                    <td data-label="Category"><span class="category-tag">${cat}</span></td>
-                    <td data-label="Amount" style="text-align: right;" class="amount">-$${amt}</td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('afterbegin', row);
-            
-            closeModal();
+                if (response.ok) {
+                    // Hide empty state, show list
+                    emptyState.style.display = 'none';
+                    listContainer.style.display = 'block';
+
+                    // Add row
+                    const row = `
+                        <tr>
+                            <td data-label="Date">${date}</td>
+                            <td data-label="Description">${desc}</td>
+                            <td data-label="Category"><span class="category-tag">${cat}</span></td>
+                            <td data-label="Amount" style="text-align: right;" class="amount">-$${amt}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('afterbegin', row);
+                    
+                    closeModal();
+                } else {
+                    alert('Failed to save expense.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error connecting to server.');
+            }
         };
 
         // Theme Toggle Logic
@@ -314,6 +344,16 @@
                 mobileOverlay.classList.remove('active');
             });
         }
+
+        // Logout Logic
+        const handleLogout = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            window.location.href = 'index.html';
+        };
+
+        document.querySelector('.logout-icon').addEventListener('click', handleLogout);
+        document.getElementById('mobile-logout-btn').addEventListener('click', handleLogout);
     </script>
 </body>
 </html>

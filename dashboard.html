@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BalanceIQ - Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
     <!-- Adding an icon library for the profile and logout icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Adding a charting library for graphs -->
@@ -183,7 +184,10 @@
 
     <header class="main-header">
         <button id="mobile-menu-btn" class="hamburger-menu"><i class="fas fa-bars"></i></button>
-        <a href="dashboard.html" class="logo" style="text-decoration: none;">BalanceIQ</a>
+        <a href="dashboard.html" class="logo" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+            <img src="icon.svg" alt="BalanceIQ" style="height: 32px;">
+            BalanceIQ
+        </a>
         <nav class="main-nav" id="main-nav">
             <ul>
                 <li><a href="#" class="active">Dashboard</a></li>
@@ -203,7 +207,7 @@
                         </div>
                     </label>
                 </li>
-                <li class="mobile-only"><a href="index.html">Logout</a></li>
+                <li class="mobile-only"><a href="#" id="mobile-logout-btn">Logout</a></li>
             </ul>
         </nav>
         <div class="user-profile">
@@ -1103,7 +1107,9 @@
     <!-- Toast Notification -->
     <div id="toast-notification"></div>
 
-    <script>
+    <script type="module">
+        import { API_BASE_URL } from './src/api/config.js';
+
         // --- Modal Handling ---
         const expenseModal = document.getElementById('expense-modal');
         const incomeModal = document.getElementById('income-modal');
@@ -1662,7 +1668,7 @@
             });
         });
 
-        expenseForm.addEventListener('submit', (event) => {
+        expenseForm.addEventListener('submit', async (event) => {
             event.preventDefault(); // Prevent the default form submission (page reload)
             if (!expenseForm.checkValidity()) {
                 expenseForm.reportValidity();
@@ -1693,38 +1699,52 @@
                 taxDeductible: isTaxDeductible,
             };
 
-            // Simulate conversion and log it
-            const convertedAmount = convertCurrency(expenseAmount, expenseCurrency, DASHBOARD_CURRENCY);
-            console.log('Saving Expense:', expenseData);
-            console.log(`Original: ${expenseAmount.toFixed(2)} ${expenseCurrency}. Converted to default: ${convertedAmount.toFixed(2)} ${DASHBOARD_CURRENCY}`);
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ ...expenseData, type: 'expense' })
+                });
 
+                if (response.ok) {
+                    // Simulate conversion and log it (Keep UI update logic for immediate feedback)
+                    const convertedAmount = convertCurrency(expenseAmount, expenseCurrency, DASHBOARD_CURRENCY);
+                    
+                    // 1. Show success notification
+                    showToast('✔ Expense added successfully!');
 
-            // 1. Show success notification
-            showToast('✔ Expense added successfully!');
+                    // 2. Dashboard updates instantly
+                    const expensesAmountEl = document.getElementById('monthly-expenses-amount');
+                    const currentExpenses = parseFloat(expensesAmountEl.textContent.replace(/[^0-9.-]+/g,""));
+                    const newTotalExpenses = currentExpenses + convertedAmount;
+                    expensesAmountEl.innerHTML = `${DASHBOARD_CURRENCY} ${newTotalExpenses.toFixed(2)} <i class="fas fa-arrow-up trend-up"></i>`;
 
-            // 2. Dashboard updates instantly
-            // Update Monthly Expenses Card
-            const expensesAmountEl = document.getElementById('monthly-expenses-amount');
-            const currentExpenses = parseFloat(expensesAmountEl.textContent.replace(/[^0-9.-]+/g,""));
-            const newTotalExpenses = currentExpenses + convertedAmount;
-            expensesAmountEl.innerHTML = `${DASHBOARD_CURRENCY} ${newTotalExpenses.toFixed(2)} <i class="fas fa-arrow-up trend-up"></i>`; // Example update
+                    // Add new row to Recent Activity
+                    const activityTableBody = document.getElementById('activity-tbody');
+                    const newRow = `<tr>
+                                        <td data-label="Title">${expenseName}</td>
+                                        <td data-label="Category" style="text-transform: capitalize;">${expenseCategory}</td>
+                                        <td data-label="Date">${expenseDate}</td>
+                                        <td data-label="Amount" class="amount negative text-right">-${expenseAmount.toFixed(2)} ${expenseCurrency}</td>
+                                    </tr>`;
+                    activityTableBody.insertAdjacentHTML('afterbegin', newRow);
 
-            // Add new row to Recent Activity
-            const activityTableBody = document.getElementById('activity-tbody');
-            const newRow = `<tr>
-                                <td data-label="Title">${expenseName}</td>
-                                <td data-label="Category" style="text-transform: capitalize;">${expenseCategory}</td>
-                                <td data-label="Date">${expenseDate}</td>
-                                <td data-label="Amount" class="amount negative text-right">-${expenseAmount.toFixed(2)} ${expenseCurrency}</td>
-                            </tr>`;
-            activityTableBody.insertAdjacentHTML('afterbegin', newRow);
-
-            // 3. The modal closes automatically
-            closeModal(expenseModal); // Close the modal after "saving"
+                    // 3. The modal closes automatically
+                    closeModal(expenseModal);
+                } else {
+                    showToast('❌ Failed to add expense.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error connecting to server.');
+            }
         });
 
         // Handle Income form submission
-        incomeForm.addEventListener('submit', (event) => {
+        incomeForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             if (!incomeForm.checkValidity()) {
                 incomeForm.reportValidity();
@@ -1757,43 +1777,54 @@
                 notes: document.getElementById('income-notes').value,
             };
 
-            console.log('Saving Income:', incomeData);
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ ...incomeData, type: 'income' })
+                });
 
-            // --- Dashboard Updates Instantly ---
-            const convertedIncome = convertCurrency(incomeAmount, incomeCurrency, DASHBOARD_CURRENCY);
+                if (response.ok) {
+                    // --- Dashboard Updates Instantly ---
+                    const convertedIncome = convertCurrency(incomeAmount, incomeCurrency, DASHBOARD_CURRENCY);
 
-            // Helper function to update a card's value
-            const updateCardValue = (elementId, valueToAdd) => {
-                const element = document.getElementById(elementId);
-                const currentValue = parseFloat(element.textContent.replace(/[^0-9.-]+/g, ""));
-                const newValue = currentValue + valueToAdd;
-                element.textContent = `${DASHBOARD_CURRENCY} ${newValue.toFixed(2)}`;
-            };
+                    const updateCardValue = (elementId, valueToAdd) => {
+                        const element = document.getElementById(elementId);
+                        const currentValue = parseFloat(element.textContent.replace(/[^0-9.-]+/g, ""));
+                        const newValue = currentValue + valueToAdd;
+                        element.textContent = `${DASHBOARD_CURRENCY} ${newValue.toFixed(2)}`;
+                    };
 
-            updateCardValue('total-balance-amount', convertedIncome);
-            updateCardValue('monthly-income-amount', convertedIncome);
-            updateCardValue('monthly-surplus-amount', convertedIncome);
-            // In a real app, you would also trigger tax recalculation and graph updates here.
+                    updateCardValue('total-balance-amount', convertedIncome);
+                    updateCardValue('monthly-income-amount', convertedIncome);
+                    updateCardValue('monthly-surplus-amount', convertedIncome);
 
-            // 1. Show success notification
-            showToast('✔ Income added successfully!');
+                    showToast('✔ Income added successfully!');
 
-            // 2. Update UI (add to recent activity)
-            const activityTableBody = document.getElementById('activity-tbody');
-            const newRow = `<tr>
-                                <td data-label="Title">${incomeSource}</td>
-                                <td data-label="Category" style="text-transform: capitalize;">${incomeCategory}</td>
-                                <td data-label="Date">${incomeDate}</td>
-                                <td data-label="Amount" class="amount positive text-right">+${incomeAmount.toFixed(2)} ${incomeCurrency}</td>
-                            </tr>`;
-            activityTableBody.insertAdjacentHTML('afterbegin', newRow);
+                    const activityTableBody = document.getElementById('activity-tbody');
+                    const newRow = `<tr>
+                                        <td data-label="Title">${incomeSource}</td>
+                                        <td data-label="Category" style="text-transform: capitalize;">${incomeCategory}</td>
+                                        <td data-label="Date">${incomeDate}</td>
+                                        <td data-label="Amount" class="amount positive text-right">+${incomeAmount.toFixed(2)} ${incomeCurrency}</td>
+                                    </tr>`;
+                    activityTableBody.insertAdjacentHTML('afterbegin', newRow);
 
-            // 3. Close modal
-            closeModal(incomeModal);
+                    closeModal(incomeModal);
+                } else {
+                    showToast('❌ Failed to add income.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error connecting to server.');
+            }
         });
 
         // Handle Payment form submission
-        paymentForm.addEventListener('submit', (event) => {
+        paymentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             if (!paymentForm.checkValidity()) {
                 paymentForm.reportValidity();
@@ -1805,18 +1836,36 @@
             const category = document.getElementById('payment-category').value;
             const date = new Date(document.getElementById('payment-date').value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-            // Update Recent Activity
-            const activityTableBody = document.getElementById('activity-tbody');
-            const newRow = `<tr>
-                                <td data-label="Title">Payment: ${category}</td>
-                                <td data-label="Category">${category}</td>
-                                <td data-label="Date">${date}</td>
-                                <td data-label="Amount" class="amount negative text-right">-${parseFloat(amount).toFixed(2)} ${currency}</td>
-                            </tr>`;
-            activityTableBody.insertAdjacentHTML('afterbegin', newRow);
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+                    },
+                    body: JSON.stringify({ amount, currency, category, date, type: 'payment' })
+                });
 
-            showToast('✔ Payment recorded successfully!');
-            closeModal(paymentModal);
+                if (response.ok) {
+                    // Update Recent Activity
+                    const activityTableBody = document.getElementById('activity-tbody');
+                    const newRow = `<tr>
+                                        <td data-label="Title">Payment: ${category}</td>
+                                        <td data-label="Category">${category}</td>
+                                        <td data-label="Date">${date}</td>
+                                        <td data-label="Amount" class="amount negative text-right">-${parseFloat(amount).toFixed(2)} ${currency}</td>
+                                    </tr>`;
+                    activityTableBody.insertAdjacentHTML('afterbegin', newRow);
+
+                    showToast('✔ Payment recorded successfully!');
+                    closeModal(paymentModal);
+                } else {
+                    showToast('❌ Failed to record payment.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error connecting to server.');
+            }
         });
 
         // Handle Profile form submission
@@ -1842,10 +1891,18 @@
         // Handle Logout
         if (logoutBtn) {
             logoutBtn.style.cursor = 'pointer';
-            logoutBtn.addEventListener('click', () => {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('access_token');
                 window.location.href = 'index.html';
             });
         }
+
+        document.getElementById('mobile-logout-btn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            window.location.href = 'index.html';
+        });
 
         // --- Theme Toggle Logic ---
         const toggleSwitches = document.querySelectorAll('.theme-switch input[type="checkbox"]');

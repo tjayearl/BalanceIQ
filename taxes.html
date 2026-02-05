@@ -66,6 +66,10 @@
         .main-nav a { text-decoration: none; color: var(--text-secondary); font-weight: 500; transition: color 0.2s; }
         .main-nav a:hover, .main-nav a.active { color: var(--primary-color); }
         .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-profile .profile-icon { font-size: 1.5rem; color: var(--primary-color); }
+        .user-profile .logout-icon { font-size: 1.2rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
+        .user-profile .logout-icon:hover { color: #d32f2f; }
+        .user-profile span { font-weight: 500; font-size: 0.95rem; }
         
         /* Mobile Nav */
         .hamburger-menu { display: none; font-size: 1.5rem; background: none; border: none; color: var(--text-main); cursor: pointer; }
@@ -81,6 +85,7 @@
             .main-nav a { display: block; padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
             .mobile-overlay.active { display: block; }
             .mobile-only { display: block; }
+            .user-profile span, .user-profile .profile-icon, .user-profile .logout-icon { display: none; }
         }
         
         /* Tax Period Selector (Disabled) */
@@ -186,7 +191,7 @@
                 <li><a href="debts.html">Debts</a></li>
                 <li><a href="accounts.html">Accounts</a></li>
                 <li><a href="settings.html">Settings</a></li>
-                <li class="mobile-only"><a href="index.html">Logout</a></li>
+                <li class="mobile-only"><a href="#" id="mobile-logout-btn">Logout</a></li>
             </ul>
         </nav>
         <div class="user-profile">
@@ -199,6 +204,9 @@
                     </div>
                 </label>
             </div>
+            <i class="fas fa-user-circle profile-icon"></i>
+            <span>Hello, User</span>
+            <i class="fas fa-sign-out-alt logout-icon" title="Logout"></i>
         </div>
     </header>
     <div class="container" style="padding: 2rem;">
@@ -264,6 +272,16 @@
                 mobileOverlay.classList.remove('active');
             });
         }
+
+        // Logout Logic
+        const handleLogout = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('access_token');
+            window.location.href = 'index.html';
+        };
+
+        document.querySelector('.logout-icon').addEventListener('click', handleLogout);
+        document.getElementById('mobile-logout-btn').addEventListener('click', handleLogout);
     </script>
 </body>
 </html>
