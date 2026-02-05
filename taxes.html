@@ -238,6 +238,10 @@
         </div>
     </div>
     <script>
+        if (!localStorage.getItem('access_token')) {
+            window.location.href = 'login.html';
+        }
+
         // Theme Toggle Logic
         const toggleSwitch = document.querySelector('.theme-switch-control input[type="checkbox"]');
         const currentTheme = localStorage.getItem('theme');

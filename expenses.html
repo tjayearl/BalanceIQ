@@ -239,6 +239,10 @@
     <script type="module">
         import { API_BASE_URL } from './src/api/config.js';
 
+        if (!localStorage.getItem('access_token')) {
+            window.location.href = 'login.html';
+        }
+
         const modal = document.getElementById('expense-modal');
         const addBtn = document.getElementById('add-expense-btn');
         const cancelBtn = document.getElementById('cancel-btn');

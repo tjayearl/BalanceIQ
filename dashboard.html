@@ -1110,6 +1110,10 @@
     <script type="module">
         import { API_BASE_URL } from './src/api/config.js';
 
+        if (!localStorage.getItem('access_token')) {
+            window.location.href = 'login.html';
+        }
+
         // --- Modal Handling ---
         const expenseModal = document.getElementById('expense-modal');
         const incomeModal = document.getElementById('income-modal');

@@ -171,6 +171,8 @@
                 });
 
                 if (response.ok) {
+                    const data = await response.json();
+                    if (data.access_token) localStorage.setItem('access_token', data.access_token);
                     window.location.href = 'signup-step2.html';
                 } else {
                     alert('Registration failed. Please try again.');
