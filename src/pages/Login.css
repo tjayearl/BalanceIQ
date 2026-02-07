@@ -37,6 +37,7 @@
   margin: 0 auto 1rem;
   width: 60px;
   height: 60px;
+  content: url('../assets/BalanceIQ-icon.png');
 }
 
 /* Heading */

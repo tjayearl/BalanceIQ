@@ -30,6 +30,7 @@
 .nav-logo {
   width: 32px;
   height: 32px;
+  content: url('../assets/BalanceIQ-icon.png');
 }
 
 .nav-links {
@@ -306,6 +307,4 @@
   .landing-footer .container { flex-direction: column; }
   .hero-actions, .cta-actions { flex-direction: column; }
   .btn { width: 100%; text-align: center; }
-}
-  }
 }
