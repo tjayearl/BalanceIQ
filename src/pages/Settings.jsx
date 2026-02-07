@@ -30,21 +30,35 @@ function Settings() {
             <div className="setting-card">
               <h3>Notification Preferences</h3>
               <div className="toggle-row">
-                <span>Email Notifications</span>
+                <span>Expense Alerts</span>
                 <label className="switch">
                   <input type="checkbox" defaultChecked />
                   <span className="slider round"></span>
                 </label>
               </div>
               <div className="toggle-row">
-                <span>Push Notifications</span>
+                <span>Debt Reminders</span>
                 <label className="switch">
-                  <input type="checkbox" />
+                  <input type="checkbox" defaultChecked />
                   <span className="slider round"></span>
                 </label>
               </div>
               <div className="toggle-row">
-                <span>Monthly Summaries</span>
+                <span>Tax Deadlines</span>
+                <label className="switch">
+                  <input type="checkbox" defaultChecked />
+                  <span className="slider round"></span>
+                </label>
+              </div>
+              <div className="toggle-row">
+                <span>Security Alerts</span>
+                <label className="switch">
+                  <input type="checkbox" defaultChecked />
+                  <span className="slider round"></span>
+                </label>
+              </div>
+              <div className="toggle-row">
+                <span>Monthly Insights</span>
                 <label className="switch">
                   <input type="checkbox" defaultChecked />
                   <span className="slider round"></span>

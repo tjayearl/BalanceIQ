@@ -18,18 +18,23 @@
   background: white;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
 }
 
-.card:hover {
+.interactive-card {
+  cursor: pointer;
+}
+
+.interactive-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.card h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-  color: #64748b;
-  font-weight: 600;
+.interactive-card:active {
+  transform: scale(0.98);
 }
 
 .card p {
@@ -37,6 +42,79 @@
   font-size: 1.8rem;
   font-weight: 700;
   color: #0f172a;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.card-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.1rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.card-arrow {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+  color: #64748b;
+}
+
+.interactive-card:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.card-subtext {
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.footer-info {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.card-action-btn {
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(0,0,0,0.05);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.card-action-btn:hover {
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transform: translateY(-1px);
 }
 
 .balance-card { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); }
