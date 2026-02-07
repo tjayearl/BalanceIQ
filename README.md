@@ -1,46 +1,16 @@
-# BalanceIQ
+# React + Vite
 
-BalanceIQ is a modern, user-friendly personal finance dashboard designed to bring clarity to your financial life. It helps users track income, expenses, calculate taxes, manage debts, and visualize financial health in one place.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-### Core Dashboard
-- **Financial Overview:** Instant view of total bank balance, taxes owed, monthly expenses, debts, and surplus.
-- **Recent Activity:** A log of recent transactions with status indicators.
-- **Linked Accounts:** Manage connected bank accounts and mobile money wallets (e.g., M-Pesa, Equity, KCB).
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-### Financial Tools
-- **Expense Tracking:** Add expenses with categories, notes, and recurring options.
-- **Income Management:** Record income sources, categorize them, and tag them for tax calculations.
-- **Tax Calculator:** Built-in tool to estimate taxes based on region (Kenya, USA, etc.) and income type, featuring visual breakdowns.
-- **Payment Recording:** Quickly record payments for rent, loans, or taxes.
+## React Compiler
 
-### Insights & Reports
-- **Detailed Reports:** Visual charts (Bar & Doughnut) comparing income vs. spending and breaking down expenses by category.
-- **Transaction History:** A searchable and filterable view of all historical transactions.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### User Experience
-- **Onboarding Flow:** A guided signup process including personalization for country and currency preferences.
-- **Responsive Design:** Works across desktop and mobile devices.
-- **Interactive Modals:** Clean interfaces for adding data without leaving the dashboard.
+## Expanding the ESLint configuration
 
-## File Structure
-
-- `landing.html`: The entry point for new users, explaining the value proposition and features.
-- `index.html`: The main application dashboard where logged-in users manage their finances.
-- `login.html`: User authentication page.
-- `signup.html`: Account creation page.
-- `signup-step2.html`: Onboarding personalization step.
-
-## Technologies Used
-
-- **HTML5 & CSS3:** For structure and styling.
-- **JavaScript (Vanilla):** Handles application logic, modal interactions, and data simulation.
-- **Chart.js:** Renders interactive financial graphs.
-- **FontAwesome:** Provides iconography throughout the application.
-
-## Getting Started
-
-1. Clone or download the repository.
-2. Open `landing.html` in your web browser to start from the beginning of the user journey.
-3. Alternatively, open `index.html` to jump straight into the dashboard view.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

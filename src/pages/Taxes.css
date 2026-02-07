@@ -1,0 +1,20 @@
+.taxes-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f0f8ff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+h2 { text-align:center; color:#0074d9; }
+.taxes-form { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:20px;}
+.taxes-form input, .taxes-form select { padding:8px; border-radius:5px; border:1px solid #0074d9;}
+.taxes-form button { padding:10px 15px; border:none; background:#0074d9; color:white; border-radius:5px; cursor:pointer;}
+.taxes-form button:hover { background:#005fa3; }
+.total-taxes { font-weight:bold; text-align:right; margin-bottom:10px; color:#0074d9;}
+.taxes-table { width:100%; border-collapse:collapse; }
+.taxes-table th, .taxes-table td { padding:10px; border:1px solid #0074d9; text-align:center; }
+.taxes-table th { background:#0074d9; color:white; }
+.taxes-table td button { margin:0 5px; padding:5px 10px; border-radius:5px; cursor:pointer; }
+.taxes-table td button:first-child { background:#00aaff; color:white; border:none; }
+.taxes-table td button:last-child { background:#ff4d4d; color:white; border:none; }

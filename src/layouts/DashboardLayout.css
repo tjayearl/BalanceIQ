@@ -1,0 +1,28 @@
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background: #111827;
+  color: white;
+  padding: 1rem;
+}
+
+.sidebar a {
+  display: block;
+  color: #9ca3af;
+  margin: 0.5rem 0;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  color: white;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  background: #f9fafb;
+}
