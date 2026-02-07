@@ -1,16 +1,21 @@
-# React + Vite
+# 📊 BalanceIQ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+BalanceIQ is a modern personal finance management web application designed to help users understand, organize, and take control of their finances with clarity and confidence.
 
-Currently, two official plugins are available:
+The app allows users to track expenses, manage debts, prepare for taxes, and monitor their overall financial health through a clean, intuitive dashboard. Instead of juggling spreadsheets or complex finance tools, BalanceIQ brings everything into one simple and intelligent platform.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Built with a mobile-friendly, user-focused design, BalanceIQ makes financial management accessible to everyone — from students and freelancers to professionals looking for better control over their money. Security, simplicity, and usability are at the core of the experience, ensuring users can focus on making smarter financial decisions without unnecessary stress.
 
-## React Compiler
+## ✨ Key Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Expense tracking with clear categorization
+- Debt management with balances and due dates
+- Interactive financial dashboard
+- Tax organization and preparation tools
+- Customizable user settings and notifications
+- Secure authentication and data handling
+- Fully responsive design for mobile, tablet, and desktop
 
-## Expanding the ESLint configuration
+## Credits
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Special thanks to **Gemini AI** and **ChatGPT** for their assistance with error handling and guidance in creating a secure and compliant application.
