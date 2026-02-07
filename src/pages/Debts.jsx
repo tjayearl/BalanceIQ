@@ -44,15 +44,15 @@ function Debts() {
         <tbody>
           {filteredDebts.map((debt) => (
             <tr key={debt.id}>
-              <td>{debt.creditor}</td>
-              <td>Ksh {debt.amount.toLocaleString()}</td>
-              <td>{debt.dueDate}</td>
-              <td>
+              <td data-label="Creditor">{debt.creditor}</td>
+              <td data-label="Amount">Ksh {debt.amount.toLocaleString()}</td>
+              <td data-label="Due Date">{debt.dueDate}</td>
+              <td data-label="Status">
                 <span className={`status ${debt.status.toLowerCase()}`}>
                   {debt.status}
                 </span>
               </td>
-              <td className="action-buttons">
+              <td data-label="Actions" className="action-buttons">
                 <button className="icon-btn edit-btn" title="Edit"><AiOutlineEdit /></button>
                 <button className="icon-btn pay-btn" title="Mark as Paid"><AiOutlineCheck /></button>
                 <button className="icon-btn delete-btn" title="Delete"><AiOutlineDelete /></button>

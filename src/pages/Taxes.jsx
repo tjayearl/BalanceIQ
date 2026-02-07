@@ -91,15 +91,15 @@ const Taxes = () => {
         <tbody>
           {filteredTaxes.map((tax) => (
             <tr key={tax.id}>
-              <td>{tax.type}</td>
-              <td>Ksh {tax.amount.toLocaleString()}</td>
-              <td>{tax.dueDate}</td>
-              <td>
+              <td data-label="Tax Name">{tax.type}</td>
+              <td data-label="Amount">Ksh {tax.amount.toLocaleString()}</td>
+              <td data-label="Due Date">{tax.dueDate}</td>
+              <td data-label="Status">
                 <span className={`status ${tax.status.toLowerCase()}`}>
                   {tax.status}
                 </span>
               </td>
-              <td className="action-buttons">
+              <td data-label="Actions" className="action-buttons">
                 <button className="icon-btn edit-btn" title="Edit"><AiOutlineEdit /></button>
                 <button className="icon-btn pay-btn" title="Mark Paid"><AiOutlineCheck /></button>
                 <button className="icon-btn delete-btn" title="Delete"><AiOutlineDelete /></button>

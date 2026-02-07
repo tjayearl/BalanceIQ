@@ -107,4 +107,34 @@
 .edit-btn:hover { color: #0ea5e9; background-color: #e0f2fe; }
 .pay-btn:hover { color: #16a34a; background-color: #dcfce7; }
 .delete-btn:hover { color: #ef4444; background-color: #fee2e2; }
+
+@media (max-width: 768px) {
+  .debts-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .add-debt-btn { width: 100%; justify-content: center; }
+  
+  /* Mobile Table -> Cards */
+  .debt-table thead { display: none; }
+  .debt-table, .debt-table tbody, .debt-table tr, .debt-table td {
+    display: block;
+    width: 100%;
+  }
+  .debt-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .debt-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border: none;
+  }
+  .debt-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+  }
+}
 }

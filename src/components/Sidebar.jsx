@@ -2,11 +2,13 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { AiOutlineHome, AiOutlineDollar, AiOutlineCreditCard, AiOutlineBank, AiOutlineSetting } from 'react-icons/ai';
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
   return (
-    <aside className="sidebar">
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose}></div>
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-title">BalanceIQ</div>
-      <nav>
+      <nav onClick={onClose}>
         <NavLink to="/dashboard" end className={({ isActive }) => isActive ? "active" : ""}>
           <AiOutlineHome /> Dashboard
         </NavLink>
@@ -24,6 +26,7 @@ function Sidebar() {
         </NavLink>
       </nav>
     </aside>
+    </>
   );
 }
 

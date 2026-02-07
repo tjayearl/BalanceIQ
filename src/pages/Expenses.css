@@ -137,4 +137,29 @@
     right: 20px;
     padding: 0.8rem 1.2rem;
   }
+
+  /* Mobile Table -> Cards */
+  .expense-table thead { display: none; }
+  .expense-table, .expense-table tbody, .expense-table tr, .expense-table td {
+    display: block;
+    width: 100%;
+  }
+  .expense-table tr {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem;
+  }
+  .expense-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    text-align: right;
+  }
+  .expense-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+    text-align: left;
+  }
 }

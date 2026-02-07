@@ -178,3 +178,33 @@
 .edit-btn:hover { color: #0ea5e9; background-color: #e0f2fe; }
 .pay-btn:hover { color: #16a34a; background-color: #dcfce7; }
 .delete-btn:hover { color: #ef4444; background-color: #fee2e2; }
+
+@media (max-width: 768px) {
+  .taxes-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .add-tax-btn { width: 100%; justify-content: center; }
+  
+  /* Mobile Table -> Cards */
+  .tax-table thead { display: none; }
+  .tax-table, .tax-table tbody, .tax-table tr, .tax-table td {
+    display: block;
+    width: 100%;
+  }
+  .tax-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .tax-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border: none;
+  }
+  .tax-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+  }
+}
