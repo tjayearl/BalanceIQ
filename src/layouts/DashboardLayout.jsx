@@ -1,11 +1,12 @@
 import { Link, Outlet } from "react-router-dom";
 import "./DashboardLayout.css";
+import AppHeader from "../components/AppHeader";
 
 function DashboardLayout() {
   return (
     <div className="dashboard">
       <aside className="sidebar">
-        <h2>BalanceIQ</h2>
+        <AppHeader />
         <nav>
           <Link to="/dashboard/debts">Debts</Link>
           <Link to="/dashboard/expenses">Expenses</Link>

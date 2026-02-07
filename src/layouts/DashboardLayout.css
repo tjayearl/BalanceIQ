@@ -10,6 +10,18 @@
   padding: 1rem;
 }
 
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
 .sidebar a {
   display: block;
   color: #9ca3af;

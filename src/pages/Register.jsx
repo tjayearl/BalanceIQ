@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import icon from "../assets/BalanceIQ-icon.png";
+import "./Login.css"; // Re-use login styles for consistency
 
 function Register() {
   const [name, setName] = useState("");
@@ -19,41 +21,41 @@ function Register() {
   };
 
   return (
-    <div>
-      <form onSubmit={handleRegister}>
-        <h1 style={{ textAlign: "center" }}>BalanceIQ Register</h1>
-        <div>
-          <label>Name:</label>
+    <div className="login-container">
+      <div className="login-box">
+        <div className="login-header">
+          <img src={icon} alt="BalanceIQ Logo" className="login-logo" />
+          <h1>BalanceIQ</h1>
+        </div>
+        <h2>Register</h2>
+        <form onSubmit={handleRegister}>
           <input
             type="text"
+            placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label>Email:</label>
           <input
             type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label>Password:</label>
           <input
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
-        <button type="submit">Register</button>
+          <button type="submit">Register</button>
+        </form>
         <p style={{ textAlign: "center", marginTop: "1rem" }}>
           Already have an account? <Link to="/">Login</Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
