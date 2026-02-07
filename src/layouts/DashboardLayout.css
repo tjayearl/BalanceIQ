@@ -1,40 +1,147 @@
 .dashboard {
   display: flex;
   min-height: 100vh;
+  background-color: #f8fafc;
 }
 
 .sidebar {
-  width: 220px;
-  background: #111827;
+  width: 260px;
+  background: #0f172a;
   color: white;
-  padding: 1rem;
-}
-
-.sidebar-header {
+  padding: 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
 }
 
-.sidebar-header h2 {
-  margin: 0;
+.sidebar-title {
   font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 2.5rem;
+  color: #38bdf8;
+  padding-left: 0.75rem;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .sidebar a {
-  display: block;
-  color: #9ca3af;
-  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #94a3b8;
   text-decoration: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
 .sidebar a:hover {
   color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar a.active {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  margin-left: 260px; /* Width of sidebar */
+  display: flex;
+  flex-direction: column;
 }
 
 .content {
   flex: 1;
   padding: 2rem;
-  background: #f9fafb;
+  overflow-y: auto;
+}
+
+/* Header Styles */
+.dashboard-header {
+  background: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.header-brand h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-profile:hover {
+  background-color: #f1f5f9;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #334155;
+}
+
+.user-avatar {
+  font-size: 2rem;
+  color: #cbd5e1;
+}
 }

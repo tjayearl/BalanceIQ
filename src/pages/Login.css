@@ -1,58 +1,123 @@
+/* Container */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #e0f2fe; /* soft blue */
+  background: linear-gradient(135deg, #0ea5e9, #3b82f6); /* gradient blue */
+  font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
+/* Box / Frosted glass effect */
 .login-box {
-  background: white;
+  background: rgba(255, 255, 255, 0.95); /* slightly transparent */
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 380px;
+  backdrop-filter: blur(5px); /* nice frosted glass effect */
+  animation: fadeIn 0.5s ease-out forwards;
+  transform: translateY(-20px);
+  opacity: 0;
 }
 
+/* Fade in */
+@keyframes fadeIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Logo */
+.login-logo {
+  display: block;
+  margin: 0 auto 1rem;
+  width: 60px;
+  height: 60px;
+}
+
+/* Heading */
 .login-box h2 {
   text-align: center;
   color: #0ea5e9; /* blue title */
   margin-bottom: 1.5rem;
 }
 
-.login-box input {
+/* Input wrapper */
+.input-wrapper, .password-wrapper {
+  position: relative;
   width: 100%;
   margin-bottom: 1rem;
-  padding: 0.75rem;
-  border: 1px solid #cbd5e1;
 }
 
+.input-wrapper input, .password-wrapper input {
+  width: 100%;
+  padding: 0.9rem 2.5rem 0.9rem 2.5rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 1rem;
+  transition: 0.2s;
+}
+
+.input-wrapper input:focus, .password-wrapper input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+}
+
+/* Left icons */
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #0ea5e9;
+  font-size: 1.2rem;
+}
+
+/* Eye toggle on password */
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #0ea5e9;
+  font-size: 1.2rem;
+}
+
+/* Button */
 .login-box button {
   width: 100%;
   background-color: #0ea5e9;
   color: white;
   padding: 0.75rem;
   font-size: 1rem;
-  transition: 0.2s;
+  border-radius: 10px;
+  border: none;
+  transition: 0.3s;
+  margin-top: 0.5rem;
 }
 
 .login-box button:hover {
   background-color: #0284c7;
 }
 
-.login-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1rem;
+/* Footer links */
+.login-footer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
 }
 
-.login-logo {
-  width: 48px;
-  height: 48px;
+.login-footer a {
+  color: #0ea5e9;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.login-header h1 {
-  margin: 0.5rem 0 0 0;
-  font-size: 1.75rem;
+.login-footer a:hover {
+  text-decoration: underline;
 }

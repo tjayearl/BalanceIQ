@@ -1,23 +1,19 @@
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import "./DashboardLayout.css";
-import AppHeader from "../components/AppHeader";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 
 function DashboardLayout() {
   return (
     <div className="dashboard">
-      <aside className="sidebar">
-        <AppHeader />
-        <nav>
-          <Link to="/dashboard/debts">Debts</Link>
-          <Link to="/dashboard/expenses">Expenses</Link>
-          <Link to="/dashboard/taxes">Taxes</Link>
-          <Link to="/dashboard/settings">Settings</Link>
-        </nav>
-      </aside>
+      <Sidebar />
 
-      <main className="content">
-        <Outlet />
-      </main>
+      <div className="main-content-wrapper">
+        <Header />
+        <main className="content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

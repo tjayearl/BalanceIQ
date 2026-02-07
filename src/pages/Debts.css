@@ -1,30 +1,110 @@
 .debts-container {
-  max-width: 900px;
-  margin: 2rem auto;
+  max-width: 100%;
+  margin: 0 auto;
   background: white;
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.debts-container h2 {
-  color: #0ea5e9;
+.debts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.debts-table {
+.debts-header h2 {
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.add-debt-btn {
+  background-color: #0ea5e9;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.add-debt-btn:hover {
+  background-color: #0284c7;
+}
+
+.search-bar {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: #0ea5e9;
+}
+
+.debt-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Prevents content from expanding table width */
+  word-wrap: break-word; /* Wraps long text in cells */
 }
 
-.debts-table th,
-.debts-table td {
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+.debt-table th, .debt-table td {
+  padding: 1rem;
   text-align: left;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.debts-table th {
-  background-color: #f0f9ff;
-  color: #0ea5e9;
+.debt-table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debt-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status.pending { background-color: #fff7ed; color: #f97316; }
+.status.paid { background-color: #f0fdf4; color: #16a34a; }
+.status.overdue { background-color: #fef2f2; color: #ef4444; }
+
+.action-buttons { display: flex; gap: 0.5rem; }
+.icon-btn { padding: 0.5rem; border-radius: 6px; background: transparent; color: #64748b; font-size: 1.1rem; transition: all 0.2s; }
+.icon-btn:hover { background-color: #e2e8f0; color: #1e293b; }
+.edit-btn:hover { color: #0ea5e9; background-color: #e0f2fe; }
+.pay-btn:hover { color: #16a34a; background-color: #dcfce7; }
+.delete-btn:hover { color: #ef4444; background-color: #fee2e2; }
 }

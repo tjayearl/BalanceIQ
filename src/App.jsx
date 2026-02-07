@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
+import DashboardHome from "./pages/DashboardHome";
 import Debts from "./pages/Debts";
 import Expenses from "./pages/Expenses";
 import Taxes from "./pages/Taxes";
@@ -13,7 +14,7 @@ function App() {
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route index element={<Debts />} />
+        <Route index element={<DashboardHome />} />
         <Route path="debts" element={<Debts />} />
         <Route path="expenses" element={<Expenses />} />
         <Route path="taxes" element={<Taxes />} />

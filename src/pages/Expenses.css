@@ -1,82 +1,140 @@
+/* Container for the page */
 .expenses-container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f0f8ff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  /* This container now inherits padding and background from the layout */
+  font-family: 'Inter', sans-serif;
 }
 
-h2 {
-  text-align: center;
-  color: #0074d9;
-}
-
-.expenses-form {
+/* Expense Summary Cards */
+.expense-summary {
   display: flex;
+  gap: 1rem;
   flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 }
 
-.expenses-form input {
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #0074d9;
+.card {
+  flex: 1 1 200px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.expenses-form button {
-  padding: 10px 15px;
-  border: none;
-  background-color: #0074d9;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-.expenses-form button:hover {
-  background-color: #005fa3;
+.card h3 {
+  margin-bottom: 0.5rem;
+  color: #0ea5e9;
 }
 
-.total-expenses {
-  font-weight: bold;
-  text-align: right;
-  margin-bottom: 10px;
-  color: #0074d9;
+.card p {
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
-.expenses-table {
+/* Card Colors */
+.total-spent { background: #fee2e2; }
+.food-expense { background: #fef3c7; }
+.transport-expense { background: #d1fae5; }
+.entertainment-expense { background: #ede9fe; }
+
+/* Expense Table */
+.expense-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 1rem;
+  table-layout: fixed; /* Prevents content from expanding table width */
+  word-wrap: break-word; /* Wraps long text in cells */
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 
-.expenses-table th, .expenses-table td {
-  padding: 10px;
-  border: 1px solid #0074d9;
-  text-align: center;
+.expense-table th, .expense-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
 }
 
-.expenses-table th {
-  background-color: #0074d9;
+.expense-table thead {
+  background: #0ea5e9;
   color: white;
+  font-weight: 600;
 }
 
-.expenses-table td button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  border-radius: 5px;
+.expense-table tbody tr:nth-child(odd) {
+  background: #f1f5f9; /* striped rows */
+}
+
+.expense-table tbody tr:hover {
+  background: #e0f2fe;
+}
+
+.expense-table button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  background-color: #0ea5e9;
+  color: white;
+  transition: background 0.2s;
 }
 
-.expenses-table td button:first-child {
-  background-color: #00aaff;
-  color: white;
-  border: none;
+.expense-table button:hover {
+  background-color: #0284c7;
 }
 
-.expenses-table td button:last-child {
-  background-color: #ff4d4d;
-  color: white;
+/* Floating Add Expense Button */
+.add-expense-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 1rem 1.5rem;
   border: none;
+  border-radius: 50px;
+  background-color: #0ea5e9;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.add-expense-btn:hover {
+  transform: translateY(-3px);
+  background-color: #0284c7;
+}
+
+/* Chart container */
+.expense-chart {
+  margin: 2rem 0;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+  .expense-summary {
+    flex-direction: column;
+  }
+
+  .card {
+    flex: 1 1 100%;
+  }
+
+  .expense-table th, .expense-table td {
+    padding: 0.5rem;
+  }
+
+  .add-expense-btn {
+    bottom: 20px;
+    right: 20px;
+    padding: 0.8rem 1.2rem;
+  }
 }
