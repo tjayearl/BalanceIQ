@@ -1,117 +1,61 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
+import { FinanceContext } from "../context/FinanceContext";
 import "./Expenses.css";
 
-const Expenses = () => {
-  const [expenses, setExpenses] = useState([]);
-  const [formData, setFormData] = useState({
-    description: "",
-    category: "",
-    amount: "",
-    date: "",
-  });
-  const [editIndex, setEditIndex] = useState(null);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+function Expenses() {
+  const { expenses, addExpense } = useContext(FinanceContext);
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("Food");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editIndex !== null) {
-      const updatedExpenses = [...expenses];
-      updatedExpenses[editIndex] = formData;
-      setExpenses(updatedExpenses);
-      setEditIndex(null);
-    } else {
-      setExpenses([...expenses, formData]);
-    }
-    setFormData({ description: "", category: "", amount: "", date: "" });
-  };
 
-  const handleEdit = (index) => {
-    setFormData(expenses[index]);
-    setEditIndex(index);
-  };
+    addExpense({
+      id: Date.now(),
+      amount: Number(amount),
+      category,
+      date: new Date().toLocaleDateString(),
+    });
 
-  const handleDelete = (index) => {
-    setExpenses(expenses.filter((_, i) => i !== index));
+    setAmount("");
   };
 
   return (
-    <div className="expenses-container">
+    <div className="expenses-page">
       <h2>Expenses</h2>
 
-      <form className="expenses-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-        />
+      <form onSubmit={handleSubmit} className="expense-form">
         <input
           type="number"
-          name="amount"
           placeholder="Amount"
-          value={formData.amount}
-          onChange={handleChange}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
           required
         />
-        <input
-          type="date"
-          name="date"
-          value={formData.date}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">{editIndex !== null ? "Update" : "Add"}</button>
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option>Food</option>
+          <option>Transport</option>
+          <option>Rent</option>
+          <option>Shopping</option>
+          <option>Loans</option>
+        </select>
+
+        <button>Add Expense</button>
       </form>
 
-      <div className="total-expenses">
-        Total Expenses: ${expenses.reduce((sum, exp) => sum + Number(exp.amount), 0)}
-      </div>
-
-      <table className="expenses-table">
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {expenses.map((exp, index) => (
-            <tr key={index}>
-              <td>{exp.description}</td>
-              <td>{exp.category}</td>
-              <td>${exp.amount}</td>
-              <td>{exp.date}</td>
-              <td>
-                <button onClick={() => handleEdit(index)}>Edit</button>
-                <button onClick={() => handleDelete(index)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-          {expenses.length === 0 && (
-            <tr>
-              <td colSpan="5">No expenses added yet.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <ul className="expense-list">
+        {expenses.map((e) => (
+          <li key={e.id}>
+            KSh {e.amount} — {e.category}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default Expenses;

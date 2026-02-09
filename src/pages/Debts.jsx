@@ -1,71 +1,55 @@
-import React, { useState } from "react";
-import { AiOutlinePlus, AiOutlineSearch, AiOutlineEdit, AiOutlineDelete, AiOutlineCheck } from "react-icons/ai";
-import './Debts.css';
+import { useContext, useState } from "react";
+import { FinanceContext } from "../context/FinanceContext";
+import "./Debts.css";
 
 function Debts() {
-  const [debts, setDebts] = useState([
-    { id: 1, creditor: "John Doe", amount: 5000, dueDate: "2026-02-15", status: "Pending" },
-    { id: 2, creditor: "Credit Card", amount: 1200, dueDate: "2026-03-01", status: "Paid" },
-    { id: 3, creditor: "Jane Smith", amount: 3000, dueDate: "2026-01-20", status: "Overdue" },
-  ]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const { debts, addDebt } = useContext(FinanceContext);
+  const [creditor, setCreditor] = useState("");
+  const [amount, setAmount] = useState("");
 
-  const filteredDebts = debts.filter(debt =>
-    debt.creditor.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    addDebt({
+      id: Date.now(),
+      creditor,
+      remaining: Number(amount),
+    });
+
+    setCreditor("");
+    setAmount("");
+  };
 
   return (
-    <div className="debts-container">
-      <div className="debts-header">
-        <h2>Debts</h2>
-        <button className="add-debt-btn"><AiOutlinePlus /> Add Debt</button>
-      </div>
+    <div className="debts-page">
+      <h2>Debts</h2>
 
-      <div className="search-bar">
-        <AiOutlineSearch className="search-icon" />
+      <form onSubmit={handleSubmit} className="debt-form">
         <input
-          type="text"
-          placeholder="Search creditors..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Creditor"
+          value={creditor}
+          onChange={(e) => setCreditor(e.target.value)}
+          required
         />
-      </div>
 
-      <table className="debt-table">
-        <thead>
-          <tr>
-            <th>Creditor</th>
-            <th>Amount</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredDebts.map((debt) => (
-            <tr key={debt.id}>
-              <td data-label="Creditor">{debt.creditor}</td>
-              <td data-label="Amount">Ksh {debt.amount.toLocaleString()}</td>
-              <td data-label="Due Date">{debt.dueDate}</td>
-              <td data-label="Status">
-                <span className={`status ${debt.status.toLowerCase()}`}>
-                  {debt.status}
-                </span>
-              </td>
-              <td data-label="Actions" className="action-buttons">
-                <button className="icon-btn edit-btn" title="Edit"><AiOutlineEdit /></button>
-                <button className="icon-btn pay-btn" title="Mark as Paid"><AiOutlineCheck /></button>
-                <button className="icon-btn delete-btn" title="Delete"><AiOutlineDelete /></button>
-              </td>
-            </tr>
-          ))}
-          {filteredDebts.length === 0 && (
-            <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>No debts found.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        <input
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+        />
+
+        <button>Add Debt</button>
+      </form>
+
+      <ul className="debt-list">
+        {debts.map((d) => (
+          <li key={d.id}>
+            {d.creditor} — KSh {d.remaining}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
