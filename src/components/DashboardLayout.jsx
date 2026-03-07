@@ -53,7 +53,12 @@ export default function DashboardLayout() {
               <span className="sidebar__user-sub">Personal</span>
             </div>
           </div>
-          <button className="btn-icon sidebar__logout"><FiLogOut /></button>
+          <button className="btn-icon sidebar__logout" onClick={() => {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          }}>
+            <FiLogOut />
+          </button>
         </div>
       </aside>
 

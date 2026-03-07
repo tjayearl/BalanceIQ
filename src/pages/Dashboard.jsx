@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { FiDollarSign, FiTrendingDown, FiAlertCircle, FiCheckCircle, FiArrowRight, FiLoader } from "react-icons/fi";
 import "./Dashboard.css";
@@ -42,7 +42,10 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [e, d] = await Promise.all([axios.get("/api/expenses"), axios.get("/api/debts")]);
+        const [e, d] = await Promise.all([
+          api.get("/transactions"),
+          api.get("/debts"),
+        ]);
         const expData = Array.isArray(e.data) ? e.data : (e.data?.data ?? e.data?.expenses ?? []);
         const debtData = Array.isArray(d.data) ? d.data : (d.data?.data ?? d.data?.debts ?? []);
         setExpenses(expData); setDebts(debtData);

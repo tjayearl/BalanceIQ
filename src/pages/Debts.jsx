@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { FiPlus, FiTrash2, FiCheckCircle, FiAlertCircle, FiDollarSign, FiCalendar, FiUser, FiLoader, FiX, FiRotateCcw } from "react-icons/fi";
 import "./Debts.css";
 
@@ -22,7 +22,7 @@ export default function Debts() {
   const [filter,   setFilter]   = useState("all");
 
   useEffect(() => {
-    axios.get("/api/debts")
+    api.get("/debts")
       .then(r => {
         const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.debts ?? []);
         setItems(data);
@@ -38,18 +38,25 @@ export default function Debts() {
     if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
     setSaving(true); setError("");
     const payload = { ...form, amount: parseFloat(form.amount), interestRate: parseFloat(form.interestRate) || 0, paid: false };
-    try   { const r = await axios.post("/api/debts", payload); setItems(p => [r.data, ...p]); }
-    catch { setItems(p => [{ id: Date.now(), ...payload }, ...p]); }
-    finally { setSaving(false); setShowForm(false); setForm(BLANK); }
+    try {
+      const r = await api.post("/debts", payload);
+      setItems(p => [r.data, ...p]);
+      setShowForm(false); setForm(BLANK);
+    } catch (e) {
+      const isFrontend = e.type === "frontend";
+      const isBackend  = e.type === "backend";
+      const prefix     = isFrontend ? "⚠️ " : isBackend ? "🔴 Server: " : "";
+      setError(prefix + (e.message || "Something went wrong. Please try again."));
+    } finally { setSaving(false); }
   };
 
   const handlePaid = async (id, paid) => {
-    try { await axios.patch(`/api/debts/${id}`, { paid }); } catch {}
+    try { await api.patch(`/debts/${id}`, { paid }); } catch {}
     setItems(p => p.map(d => d.id === id ? { ...d, paid } : d));
   };
 
   const handleDelete = async id => {
-    try { await axios.delete(`/api/debts/${id}`); } catch {}
+    try { await api.delete(`/debts/${id}`); } catch {}
     setItems(p => p.filter(d => d.id !== id));
   };
 

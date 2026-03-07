@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { FiPlus, FiTrash2, FiDollarSign, FiTag, FiCalendar, FiLoader, FiX } from "react-icons/fi";
 import "./Expenses.css";
 
@@ -24,7 +24,7 @@ export default function Expenses() {
   const [filter,   setFilter]   = useState("All");
 
   useEffect(() => {
-    axios.get("/api/expenses")
+    api.get("/transactions")
       .then(r => {
         const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.expenses ?? []);
         setItems(data);
@@ -40,13 +40,20 @@ export default function Expenses() {
     if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
     setSaving(true); setError("");
     const payload = { ...form, amount: parseFloat(form.amount) };
-    try { const r = await axios.post("/api/expenses", payload); setItems(p => [r.data, ...p]); }
-    catch { setItems(p => [{ id: Date.now(), ...payload }, ...p]); }
-    finally { setSaving(false); setShowForm(false); setForm(BLANK); }
+    try {
+      const r = await api.post("/transactions", payload);
+      setItems(p => [r.data, ...p]);
+      setShowForm(false); setForm(BLANK);
+    } catch (e) {
+      const isFrontend = e.type === "frontend";
+      const isBackend  = e.type === "backend";
+      const prefix     = isFrontend ? "⚠️ " : isBackend ? "🔴 Server: " : "";
+      setError(prefix + (e.message || "Something went wrong. Please try again."));
+    } finally { setSaving(false); }
   };
 
   const handleDelete = async id => {
-    try { await axios.delete(`/api/expenses/${id}`); } catch {}
+    try { await api.delete(`/transactions/${id}`); } catch {}
     setItems(p => p.filter(e => e.id !== id));
   };
 

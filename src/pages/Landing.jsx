@@ -1,136 +1,154 @@
 import { Link } from "react-router-dom";
 import "./Landing.css";
-import icon from "../assets/BalanceIQ-icon.png";
 
-function Landing() {
+const FEATURES = [
+  { icon: "📊", title: "Expense Tracking", desc: "Log and categorize every expense. See exactly where your money goes each month." },
+  { icon: "💳", title: "Debt Management", desc: "Track what you owe, to whom, and when it's due. Never miss a payment again." },
+  { icon: "🧾", title: "Tax Calculator", desc: "Estimate your federal tax liability instantly with up-to-date 2025 brackets." },
+  { icon: "📈", title: "Financial Dashboard", desc: "See your full financial picture in one clean, easy-to-read dashboard." },
+];
+
+const STEPS = [
+  { n: "1", title: "Create your account", desc: "Sign up free in under a minute. No credit card required." },
+  { n: "2", title: "Add your data", desc: "Enter your expenses, debts, and income at your own pace." },
+  { n: "3", title: "Get clarity", desc: "Instantly see your real financial position in one dashboard." },
+];
+
+export default function Landing() {
   return (
-    <div className="landing-page">
-      {/* Navigation */}
-      <nav className="landing-nav">
-        <div className="nav-brand">
-          <img src={icon} alt="BalanceIQ" className="nav-logo" />
-          <span>BalanceIQ</span>
-        </div>
-        <div className="nav-links">
-          <Link to="/login" className="nav-link">Log In</Link>
-          <Link to="/register" className="nav-btn">Get Started</Link>
+    <div className="landing">
+
+      {/* ── Nav ── */}
+      <nav className="land-nav">
+        <div className="land-nav__inner">
+          <span className="land-nav__logo">⚖️ BalanceIQ</span>
+          <div className="land-nav__actions">
+            <Link to="/login"    className="btn-outline">Log In</Link>
+            <Link to="/register" className="btn-filled">Get Started Free</Link>
+          </div>
         </div>
       </nav>
 
-      {/* 1. Hero Section */}
-      <header className="hero-section">
-        <div className="hero-content">
-          <h1>Take Control of Your Money. <br />Think Smarter with BalanceIQ.</h1>
-          <p className="hero-sub">
-            BalanceIQ helps you track expenses, manage debts, plan taxes, and understand your finances — all in one clean, intelligent dashboard.
+      {/* ── Hero ── */}
+      <section className="hero">
+        <div className="hero__inner">
+          <div className="hero__badge">Financial Clarity Platform</div>
+          <h1 className="hero__title">
+            Understand your real<br />
+            <span className="hero__title--accent">financial position</span>
+          </h1>
+          <p className="hero__sub">
+            BalanceIQ is a financial clarity dashboard that helps you track your money,
+            debts, and balances in one place — so you always know exactly where you stand.
           </p>
-          <div className="hero-actions">
-            <Link to="/register" className="btn btn-primary btn-lg">✅ Get Started</Link>
-            <Link to="/login" className="btn btn-secondary btn-lg">👤 Log In</Link>
+          <div className="hero__cta">
+            <Link to="/register" className="btn-filled btn-filled--lg">Start Tracking Free</Link>
+            <Link to="/login"    className="btn-outline btn-outline--lg">I have an account</Link>
           </div>
-          <p className="hero-note">Free to start • Secure • Built for everyday people</p>
+          <p className="hero__note">No credit card required · Free to use · Takes 60 seconds to set up</p>
         </div>
-      </header>
 
-      {/* 2. What is BalanceIQ? */}
-      <section className="section about-section">
-        <div className="container">
-          <h2>What is BalanceIQ?</h2>
-          <p className="lead-text">
-            BalanceIQ is a smart financial management platform built to help individuals understand their money without needing an accounting background. Whether you’re tracking daily expenses, managing debts, or preparing for taxes, BalanceIQ brings everything into one simple, easy-to-use system.
+        {/* Floating stat cards */}
+        <div className="hero__cards">
+          <div className="hero-card">
+            <span className="hero-card__label">Total Expenses</span>
+            <span className="hero-card__value">$1,486.39</span>
+            <span className="hero-card__sub c-danger">↑ This month</span>
+          </div>
+          <div className="hero-card hero-card--offset">
+            <span className="hero-card__label">Active Debts</span>
+            <span className="hero-card__value">$25,800</span>
+            <span className="hero-card__sub c-warning">3 active</span>
+          </div>
+          <div className="hero-card">
+            <span className="hero-card__label">Debts Cleared</span>
+            <span className="hero-card__value">$500</span>
+            <span className="hero-card__sub c-success">↓ Paid off</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Disclaimer Banner ── */}
+      <div className="disclaimer-banner">
+        <span className="disclaimer-banner__icon">🔒</span>
+        <p>
+          <strong>BalanceIQ is not a bank.</strong> We do not hold, transfer, or manage your funds.
+          BalanceIQ is a financial tracking and analytics tool designed to help you monitor your financial situation.
+        </p>
+      </div>
+
+      {/* ── Features ── */}
+      <section className="section">
+        <div className="section__inner">
+          <div className="section__head">
+            <h2 className="section__title">Everything you need for financial clarity</h2>
+            <p className="section__sub">Simple tools that give you a complete picture of your finances.</p>
+          </div>
+          <div className="features-grid">
+            {FEATURES.map(f => (
+              <div key={f.title} className="feature-card">
+                <span className="feature-card__icon">{f.icon}</span>
+                <h3 className="feature-card__title">{f.title}</h3>
+                <p className="feature-card__desc">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it works ── */}
+      <section className="section section--alt">
+        <div className="section__inner">
+          <div className="section__head">
+            <h2 className="section__title">Get started in 3 steps</h2>
+            <p className="section__sub">No complicated setup. No learning curve.</p>
+          </div>
+          <div className="steps">
+            {STEPS.map(s => (
+              <div key={s.n} className="step">
+                <div className="step__num">{s.n}</div>
+                <h3 className="step__title">{s.title}</h3>
+                <p className="step__desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="section section--cta">
+        <div className="section__inner section__inner--center">
+          <h2 className="section__title section__title--white">Ready to get financial clarity?</h2>
+          <p className="section__sub section__sub--white">
+            Join thousands of people who track their finances with BalanceIQ.
           </p>
-          <p>Instead of spreadsheets and guesswork, BalanceIQ gives you clarity, structure, and insight into your financial life.</p>
-        </div>
-      </section>
-
-      {/* 3. Problems Solved */}
-      <section className="section problems-section">
-        <div className="container">
-          <h2>Why BalanceIQ Exists</h2>
-          <div className="grid-cards">
-            <div className="card problem-card">❌ “I don’t know where my money goes”</div>
-            <div className="card problem-card">❌ “I forget debts and due dates”</div>
-            <div className="card problem-card">❌ “Taxes confuse me”</div>
-            <div className="card problem-card">❌ “Finance apps are too complicated”</div>
-          </div>
-          <p className="section-note">BalanceIQ was built to solve these exact problems — simply and intelligently.</p>
-        </div>
-      </section>
-
-      {/* 4. Core Features */}
-      <section className="section features-section">
-        <div className="container">
-          <h2>Core Features</h2>
-          <div className="grid-cards">
-            <div className="card feature-card">
-              <h3>🧾 Expenses Tracking</h3>
-              <p>Track daily, weekly, and monthly expenses with clarity. See categories, trends, and spending habits at a glance.</p>
-            </div>
-            <div className="card feature-card">
-              <h3>💳 Debt Management</h3>
-              <p>Keep track of loans, balances, due dates, and repayments. Know exactly what you owe and what’s coming next.</p>
-            </div>
-            <div className="card feature-card">
-              <h3>📊 Smart Dashboard</h3>
-              <p>A central dashboard that shows your financial health in real-time — no digging, no confusion.</p>
-            </div>
-            <div className="card feature-card">
-              <h3>🧮 Tax Preparation</h3>
-              <p>Organize taxable income, expenses, and deductions so tax season doesn’t catch you off guard.</p>
-            </div>
+          <div className="hero__cta" style={{ justifyContent:"center" }}>
+            <Link to="/register" className="btn-filled btn-filled--lg">Create Free Account</Link>
+            <Link to="/login"    className="btn-outline btn-outline--white btn-outline--lg">Log In</Link>
           </div>
         </div>
       </section>
 
-      {/* 5. Who is it for? & 6. Security */}
-      <section className="section split-section">
-        <div className="container grid-split">
-          <div className="text-block">
-            <h2>Built for Everyone</h2>
-            <ul className="check-list">
-              <li>👩‍🎓 Students managing allowances or side income</li>
-              <li>👨‍💼 Professionals tracking salaries and expenses</li>
-              <li>🧑‍💻 Freelancers managing irregular income</li>
-              <li>🏠 Anyone who wants financial clarity</li>
-            </ul>
+      {/* ── Footer ── */}
+      <footer className="land-footer">
+        <div className="land-footer__inner">
+          <div className="land-footer__brand">
+            <span className="land-nav__logo">⚖️ BalanceIQ</span>
+            <p className="land-footer__tagline">Financial clarity for everyone.</p>
           </div>
-          <div className="text-block">
-            <h2>Your Data, Protected</h2>
-            <ul className="check-list">
-              <li>🔒 Secure authentication</li>
-              <li>🔐 Encrypted user data</li>
-              <li>👁️ Privacy-focused design</li>
-              <li>🚫 No selling of personal data</li>
-            </ul>
+          <div className="land-footer__links">
+            <Link to="/register">Get Started</Link>
+            <Link to="/login">Log In</Link>
           </div>
         </div>
-      </section>
-
-      {/* 8. Call To Action */}
-      <section className="section cta-section">
-        <div className="container">
-          <h2>Start Managing Your Money Smarter Today</h2>
-          <div className="cta-actions">
-            <Link to="/register" className="btn btn-primary btn-lg">🚀 Create Free Account</Link>
-            <Link to="/login" className="btn btn-secondary btn-lg">🔑 Log In</Link>
-          </div>
-          <p className="cta-note">It only takes a minute to get started.</p>
+        <div className="land-footer__disclaimer">
+          BalanceIQ is not a bank and does not provide financial services. It is a financial tracking
+          and analytics tool designed to help users monitor their financial situation.
+          BalanceIQ does not hold, transfer, or manage user funds and is not a banking or financial institution.
         </div>
-      </section>
-
-      {/* 9. Footer */}
-      <footer className="landing-footer">
-        <div className="container">
-          <p>BalanceIQ © 2026</p>
-          <div className="footer-links">
-            <span>Privacy Policy</span>
-            <span>Terms of Service</span>
-            <span>Contact / Support</span>
-          </div>
-        </div>
+        <div className="land-footer__copy">© 2026 BalanceIQ. All rights reserved.</div>
       </footer>
+
     </div>
   );
 }
-
-export default Landing;
