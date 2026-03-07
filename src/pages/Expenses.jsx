@@ -1,61 +1,139 @@
-import { useContext, useState } from "react";
-import { FinanceContext } from "../context/FinanceContext";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { FiPlus, FiTrash2, FiDollarSign, FiTag, FiCalendar, FiLoader, FiX } from "react-icons/fi";
 import "./Expenses.css";
 
-function Expenses() {
-  const { expenses, addExpense } = useContext(FinanceContext);
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("Food");
+const CATEGORIES = ["Food","Transport","Housing","Entertainment","Health","Shopping","Utilities","Other"];
+const CAT_COLOR  = { Food:"#10b981", Transport:"#3b82f6", Housing:"#f59e0b", Entertainment:"#8b5cf6", Health:"#ef4444", Shopping:"#ec4899", Utilities:"#06b6d4", Other:"#64748b" };
+const MOCK = [
+  { id:1, title:"Monthly Rent",  amount:1200,  category:"Housing",       date:"2026-03-01", notes:"" },
+  { id:2, title:"Bus Pass",      amount:45,    category:"Transport",     date:"2026-03-02", notes:"" },
+  { id:3, title:"Netflix",       amount:15.99, category:"Entertainment", date:"2026-03-03", notes:"" },
+  { id:4, title:"Grocery Run",   amount:85.40, category:"Food",          date:"2026-03-04", notes:"Whole Foods" },
+  { id:5, title:"Doctor Visit",  amount:120,   category:"Health",        date:"2026-02-28", notes:"Co-pay" },
+];
+const BLANK = { title:"", amount:"", category:"Food", date: new Date().toISOString().split("T")[0], notes:"" };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+export default function Expenses() {
+  const [items,    setItems]    = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form,     setForm]     = useState(BLANK);
+  const [error,    setError]    = useState("");
+  const [saving,   setSaving]   = useState(false);
+  const [filter,   setFilter]   = useState("All");
 
-    addExpense({
-      id: Date.now(),
-      amount: Number(amount),
-      category,
-      date: new Date().toLocaleDateString(),
-    });
+  useEffect(() => {
+    axios.get("/api/expenses")
+      .then(r => {
+        const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.expenses ?? []);
+        setItems(data);
+      })
+      .catch(() => setItems(MOCK))
+      .finally(() => setLoading(false));
+  }, []);
 
-    setAmount("");
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const handleAdd = async () => {
+    if (!form.title.trim()) { setError("Title is required."); return; }
+    if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
+    setSaving(true); setError("");
+    const payload = { ...form, amount: parseFloat(form.amount) };
+    try { const r = await axios.post("/api/expenses", payload); setItems(p => [r.data, ...p]); }
+    catch { setItems(p => [{ id: Date.now(), ...payload }, ...p]); }
+    finally { setSaving(false); setShowForm(false); setForm(BLANK); }
   };
 
+  const handleDelete = async id => {
+    try { await axios.delete(`/api/expenses/${id}`); } catch {}
+    setItems(p => p.filter(e => e.id !== id));
+  };
+
+  const safeItems = Array.isArray(items) ? items : [];
+  const visible   = filter === "All" ? safeItems : safeItems.filter(e => e.category === filter);
+  const total     = visible.reduce((s,e) => s + Number(e.amount), 0);
+
   return (
-    <div className="expenses-page">
-      <h2>Expenses</h2>
+    <div className="page">
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">Expenses</h1>
+          <p className="page__sub">{visible.length} transaction{visible.length !== 1 ? "s" : ""} · Total: <strong>${total.toFixed(2)}</strong></p>
+        </div>
+        <button className="btn btn--primary" onClick={() => { setShowForm(true); setError(""); setForm(BLANK); }}>
+          <FiPlus /> Add Expense
+        </button>
+      </div>
 
-      <form onSubmit={handleSubmit} className="expense-form">
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
-
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option>Food</option>
-          <option>Transport</option>
-          <option>Rent</option>
-          <option>Shopping</option>
-          <option>Loans</option>
-        </select>
-
-        <button>Add Expense</button>
-      </form>
-
-      <ul className="expense-list">
-        {expenses.map((e) => (
-          <li key={e.id}>
-            KSh {e.amount} — {e.category}
-          </li>
+      <div className="chips">
+        {["All", ...CATEGORIES].map(c => (
+          <button key={c} className={`chip ${filter === c ? "chip--active" : ""}`} onClick={() => setFilter(c)}>{c}</button>
         ))}
-      </ul>
+      </div>
+
+      {showForm && (
+        <div className="modal-bg" onClick={() => setShowForm(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal__head">
+              <h2 className="modal__title">New Expense</h2>
+              <button className="btn-icon btn-icon--ghost" onClick={() => setShowForm(false)}><FiX /></button>
+            </div>
+            {error && <div className="form-error">{error}</div>}
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">Title</label>
+                <div className="input-wrap"><FiTag className="input-icon" /><input className="form-input" placeholder="e.g. Grocery Run" value={form.title} onChange={e => set("title", e.target.value)} /></div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Amount ($)</label>
+                <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" step="0.01" placeholder="0.00" value={form.amount} onChange={e => set("amount", e.target.value)} /></div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Category</label>
+                <select className="form-select" value={form.category} onChange={e => set("category", e.target.value)}>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Date</label>
+                <div className="input-wrap"><FiCalendar className="input-icon" /><input className="form-input" type="date" value={form.date} onChange={e => set("date", e.target.value)} /></div>
+              </div>
+              <div className="form-group form-group--full">
+                <label className="form-label">Notes <span className="form-hint">(optional)</span></label>
+                <textarea className="form-textarea" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} />
+              </div>
+            </div>
+            <div className="modal__footer">
+              <button className="btn btn--secondary" onClick={() => setShowForm(false)}>Cancel</button>
+              <button className="btn btn--primary" onClick={handleAdd} disabled={saving}>
+                {saving ? <><FiLoader className="spin" /> Saving…</> : "Add Expense"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="loading"><FiLoader className="spin" /> Loading…</div>
+      ) : visible.length === 0 ? (
+        <div className="empty"><FiDollarSign className="empty__icon" /><p>No expenses found.</p></div>
+      ) : (
+        <div className="expense-list">
+          {visible.map(e => (
+            <div key={e.id} className="expense-item">
+              <span className="expense-item__dot" style={{ background: CAT_COLOR[e.category] || "#64748b" }} />
+              <div className="expense-item__info">
+                <span className="expense-item__title">{e.title}</span>
+                <span className="expense-item__meta">{e.category} · {e.date}</span>
+                {e.notes && <span className="expense-item__notes">{e.notes}</span>}
+              </div>
+              <span className="expense-item__amount">-${Number(e.amount).toFixed(2)}</span>
+              <button className="btn-icon btn-icon--danger" onClick={() => handleDelete(e.id)}><FiTrash2 /></button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-export default Expenses;

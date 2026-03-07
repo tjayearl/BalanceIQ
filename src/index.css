@@ -1,31 +1,51 @@
-/* index.css - global styles */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:              #f0f2f8;
+  --surface:         #ffffff;
+  --surface-2:       #f8fafc;
+  --border:          #e2e8f0;
+  --text:            #0f172a;
+  --text-muted:      #64748b;
+  --text-light:      #94a3b8;
+  --primary:         #2563eb;
+  --primary-hover:   #1d4ed8;
+  --primary-light:   #dbeafe;
+  --success:         #10b981;
+  --success-light:   #d1fae5;
+  --success-dark:    #065f46;
+  --danger:          #ef4444;
+  --danger-light:    #fee2e2;
+  --danger-dark:     #991b1b;
+  --warning:         #f59e0b;
+  --warning-light:   #fef3c7;
+  --warning-dark:    #92400e;
+  --sidebar-bg:      #0f172a;
+  --sidebar-text:    #94a3b8;
+  --sidebar-hover:   rgba(255,255,255,0.06);
+  --sidebar-active:  rgba(37,99,235,0.18);
+  --sidebar-active-t:#60a5fa;
+  --sidebar-width:   240px;
+  --radius:          12px;
+  --radius-sm:       8px;
+  --shadow-sm:       0 1px 2px rgba(0,0,0,0.05);
+  --shadow:          0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md:       0 4px 24px rgba(0,0,0,0.1);
+  --shadow-lg:       0 8px 40px rgba(0,0,0,0.14);
+  --font:            'DM Sans', sans-serif;
+  --font-mono:       'DM Mono', monospace;
+  --transition:      0.15s ease;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: #f4f6f8;
-  color: #111827;
-}
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; }
+button { font-family: var(--font); cursor: pointer; }
+input, select, textarea { font-family: var(--font); }
+a { text-decoration: none; color: inherit; }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-}
-
-input, select {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
