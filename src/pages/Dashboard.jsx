@@ -1,201 +1,204 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import api from "../api";
-import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { FiDollarSign, FiTrendingDown, FiAlertCircle, FiCheckCircle, FiArrowRight, FiLoader } from "react-icons/fi";
-import "./Dashboard.css";
-
-const PIE_COLORS = ["#2563eb","#10b981","#f59e0b","#8b5cf6","#ef4444","#ec4899","#06b6d4","#64748b"];
-
-const MOCK_EXPENSES = [
-  { id:1, title:"Monthly Rent",  amount:1200,  category:"Housing",       date:"2026-03-01" },
-  { id:2, title:"Bus Pass",      amount:45,    category:"Transport",     date:"2026-03-02" },
-  { id:3, title:"Netflix",       amount:15.99, category:"Entertainment", date:"2026-03-03" },
-  { id:4, title:"Grocery Run",   amount:85.40, category:"Food",          date:"2026-03-04" },
-  { id:5, title:"Doctor Visit",  amount:120,   category:"Health",        date:"2026-02-28" },
-  { id:6, title:"Amazon Order",  amount:67.50, category:"Shopping",      date:"2026-02-25" },
-  { id:7, title:"Electricity",   amount:95,    category:"Utilities",     date:"2026-02-20" },
-  { id:8, title:"Dinner Out",    amount:52,    category:"Food",          date:"2026-02-18" },
-];
-
-const MOCK_DEBTS = [
-  { id:1, name:"Car Loan",      lender:"Bank of America", amount:8500,  dueDate:"2026-12-01", paid:false },
-  { id:2, name:"Credit Card",   lender:"Chase",           amount:2300,  dueDate:"2026-04-01", paid:false },
-  { id:3, name:"Student Loan",  lender:"Sallie Mae",      amount:15000, dueDate:"2030-06-01", paid:false },
-  { id:4, name:"Personal Loan", lender:"Friend - Mike",   amount:500,   dueDate:"2026-02-15", paid:true  },
-];
-
-const TREND = [
-  { month:"Oct", spending:980,  budget:1300 },
-  { month:"Nov", spending:1150, budget:1300 },
-  { month:"Dec", spending:1420, budget:1300 },
-  { month:"Jan", spending:1100, budget:1300 },
-  { month:"Feb", spending:1280, budget:1300 },
-  { month:"Mar", spending:1486, budget:1300 },
-];
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [userPrefs, setUserPrefs] = useState(null);
   const [expenses, setExpenses] = useState([]);
-  const [debts,    setDebts]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [debts, setDebts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // load user preferences from onboarding if available
-    const raw = localStorage.getItem('balanceiq_onboarding');
-    if (raw) {
+    // Load user preferences from onboarding
+    const onboardingData = localStorage.getItem('balanceiq_onboarding');
+    if (onboardingData) {
       try {
-        setUserPrefs(JSON.parse(raw));
+        const prefs = JSON.parse(onboardingData);
+        // defer state update to avoid cascading render warning
+        setTimeout(() => setUserPrefs(prefs), 0);
       } catch (e) {
-        console.error('Failed to parse onboarding prefs:', e);
+        console.error('Failed to load user preferences:', e);
       }
     }
 
-    (async () => {
+    // Load expenses from localStorage (NO API CALLS)
+    const storedExpenses = localStorage.getItem('expenses');
+    if (storedExpenses) {
       try {
-        const [e, d] = await Promise.all([
-          api.get("/transactions"),
-          api.get("/debts"),
-        ]);
-        const expData = Array.isArray(e.data) ? e.data : (e.data?.data ?? e.data?.expenses ?? []);
-        const debtData = Array.isArray(d.data) ? d.data : (d.data?.data ?? d.data?.debts ?? []);
-        setExpenses(expData); setDebts(debtData);
-      } catch {
-        // fallback to stored values or mock data
-        const storedExp = localStorage.getItem('expenses');
-        const storedDebt = localStorage.getItem('debts');
-        if (storedExp) {
-          try { setExpenses(JSON.parse(storedExp)); } catch { /* ignore parse errors */ };
-        } else {
-          setExpenses(MOCK_EXPENSES);
-        }
-        if (storedDebt) {
-          try { setDebts(JSON.parse(storedDebt)); } catch { /* ignore parse errors */ };
-        } else {
-          setDebts(MOCK_DEBTS);
-        }
-      } finally { setLoading(false); }
-    })();
+        const ex = JSON.parse(storedExpenses);
+        setTimeout(() => setExpenses(ex), 0);
+      } catch (e) {
+        console.error('Failed to load expenses:', e);
+        setTimeout(() => setExpenses([]), 0);
+      }
+    } else {
+      setTimeout(() => setExpenses([]), 0);
+    }
+
+    // Load debts from localStorage (NO API CALLS)
+    const storedDebts = localStorage.getItem('debts');
+    if (storedDebts) {
+      try {
+        const db = JSON.parse(storedDebts);
+        setTimeout(() => setDebts(db), 0);
+      } catch (e) {
+        console.error('Failed to load debts:', e);
+        setTimeout(() => setDebts([]), 0);
+      }
+    } else {
+      setTimeout(() => setDebts([]), 0);
+    }
+
+    setTimeout(() => setLoading(false), 0);
   }, []);
 
-  if (loading) return <div className="loading"><FiLoader className="spin" /> Loading…</div>;
-
-  const safeExpenses  = Array.isArray(expenses) ? expenses : [];
-  const safeDebts     = Array.isArray(debts) ? debts : [];
   const currencySymbol = userPrefs?.currency === 'KES' ? 'KSh' : '$';
-  const totalExpenses = safeExpenses.reduce((s,e) => s + Number(e.amount), 0);
-  const totalDebt     = safeDebts.filter(d => !d.paid).reduce((s,d) => s + Number(d.amount), 0);
-  const overdueCount  = safeDebts.filter(d => !d.paid && d.dueDate && new Date(d.dueDate) < new Date()).length;
-  const paidCount     = safeDebts.filter(d => d.paid).length;
 
-  const catMap = {};
-  safeExpenses.forEach(e => { catMap[e.category] = (catMap[e.category] || 0) + Number(e.amount); });
-  const pieData = Object.entries(catMap).map(([name, value]) => ({ name, value: +value.toFixed(2) }));
+  const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+  const totalDebts = debts
+    .filter(d => !d.paid)
+    .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
 
-  const recent      = [...safeExpenses].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-  const activeDebts = safeDebts.filter(d => !d.paid).slice(0, 5);
-  const isOverdue   = d => !d.paid && d.dueDate && new Date(d.dueDate) < new Date();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-gray-600">Loading your dashboard...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">Dashboard</h1>
-          <p className="page__sub">Your financial snapshot</p>
-        </div>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-card__icon stat-card__icon--blue"><FiDollarSign /></div>
-          <span className="stat-card__label">Monthly Expenses</span>
-          <span className="stat-card__value">{currencySymbol}{totalExpenses.toFixed(2)}</span>
-        </div>
-        <div className="stat-card">
-          <div className="stat-card__icon stat-card__icon--red"><FiTrendingDown /></div>
-          <span className="stat-card__label">Total Debt</span>
-          <span className="stat-card__value c-danger">{currencySymbol}{totalDebt.toLocaleString()}</span>
-        </div>
-        <div className="stat-card">
-          <div className="stat-card__icon stat-card__icon--yellow"><FiAlertCircle /></div>
-          <span className="stat-card__label">Overdue Debts</span>
-          <span className="stat-card__value c-warning">{overdueCount}</span>
-        </div>
-        <div className="stat-card">
-          <div className="stat-card__icon stat-card__icon--green"><FiCheckCircle /></div>
-          <span className="stat-card__label">Debts Cleared</span>
-          <span className="stat-card__value c-success">{paidCount}</span>
-        </div>
-      </div>
-
-      <div className="dash-charts">
-        <div className="card">
-          <p className="card__title">Monthly Spending Trend</p>
-          <ResponsiveContainer width="100%" height={210}>
-            <AreaChart data={TREND} margin={{ top:4, right:8, left:-10, bottom:0 }}>
-              <defs>
-                <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#2563eb" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="month" tick={{ fontSize:12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize:11 }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={v => [`$${v}`, ""]} />
-              <Area type="monotone" dataKey="spending" stroke="#2563eb" strokeWidth={2} fill="url(#grad)" name="Spending" />
-              <Area type="monotone" dataKey="budget"   stroke="#e2e8f0" strokeWidth={1.5} strokeDasharray="5 5" fill="none" name="Budget" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="card">
-          <p className="card__title">Expenses by Category</p>
-          <ResponsiveContainer width="100%" height={210}>
-            <PieChart>
-              <Pie data={pieData} cx="50%" cy="45%" innerRadius={52} outerRadius={78} dataKey="value" paddingAngle={2}>
-                {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-              </Pie>
-              <Tooltip formatter={v => [`$${v}`, ""]} />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize:"0.75rem" }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="dash-bottom">
-        <div className="card">
-          <div className="card__row">
-            <p className="card__title" style={{ margin:0 }}>Recent Expenses</p>
-            <Link to="/dashboard/expenses" className="dash-link">All <FiArrowRight /></Link>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+            {userPrefs && (
+              <p className="text-gray-600 mt-1">
+                Work Type: {userPrefs.workType} • Currency: {userPrefs.currency}
+              </p>
+            )}
           </div>
-          {recent.length === 0
-            ? <p className="c-muted" style={{ fontSize:"0.875rem" }}>No expenses yet.</p>
-            : recent.map(e => (
-              <div key={e.id} className="dash-row">
-                <span className="dash-row__dot" style={{ background: PIE_COLORS[Object.keys(catMap).indexOf(e.category) % PIE_COLORS.length] }} />
-                <span className="dash-row__title">{e.title}</span>
-                <span className="dash-row__cat">{e.category}</span>
-                <span className="dash-row__amount c-danger">-{currencySymbol}{Number(e.amount).toFixed(2)}</span>
-              </div>
-            ))
-          }
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("balanceiq_onboarding");
+              navigate("/login");
+            }}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Logout
+          </button>
         </div>
 
-        <div className="card">
-          <div className="card__row">
-            <p className="card__title" style={{ margin:0 }}>Active Debts</p>
-            <Link to="/dashboard/debts" className="dash-link">All <FiArrowRight /></Link>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Total Expenses */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Total Expenses</h3>
+            <p className="text-3xl font-bold text-red-600">
+              {currencySymbol} {totalExpenses.toFixed(2)}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">{expenses.length} transactions</p>
           </div>
-          {activeDebts.length === 0
-            ? <p className="c-muted" style={{ fontSize:"0.875rem" }}>No active debts 🎉</p>
-            : activeDebts.map(d => (
-              <div key={d.id} className="dash-row">
-                <span className="dash-row__title">{d.name}</span>
-                {isOverdue(d) && <span className="badge badge--danger">Overdue</span>}
-                <span className="dash-row__amount c-danger" style={{ marginLeft:"auto" }}>{currencySymbol}{Number(d.amount).toLocaleString()}</span>
+
+          {/* Total Debts */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Outstanding Debts</h3>
+            <p className="text-3xl font-bold text-orange-600">
+              {currencySymbol} {totalDebts.toFixed(2)}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">{debts.filter(d => !d.paid).length} unpaid</p>
+          </div>
+
+          {/* Net Balance */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-gray-600 text-sm font-medium mb-2">Net Impact</h3>
+            <p className="text-3xl font-bold text-blue-600">
+              {currencySymbol} {(totalExpenses + totalDebts).toFixed(2)}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">Expenses + Debts</p>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Expenses Section */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Recent Expenses</h2>
+              <button
+                onClick={() => navigate("/dashboard/expenses")}
+                className="text-purple-600 hover:text-purple-700 font-medium"
+              >
+                View All →
+              </button>
+            </div>
+            {expenses.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>No expenses yet</p>
+                <button
+                  onClick={() => navigate("/dashboard/expenses")}
+                  className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Add First Expense
+                </button>
               </div>
-            ))
-          }
+            ) : (
+              <div className="space-y-3">
+                {expenses.slice(0, 3).map(expense => (
+                  <div key={expense.id} className="flex justify-between items-center border-b pb-3">
+                    <div>
+                      <p className="font-medium text-gray-800">{expense.title || expense.description}</p>
+                      <p className="text-sm text-gray-500">{expense.category}</p>
+                    </div>
+                    <p className="font-semibold text-red-600">
+                      {currencySymbol} {parseFloat(expense.amount).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Debts Section */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Active Debts</h2>
+              <button
+                onClick={() => navigate("/dashboard/debts")}
+                className="text-purple-600 hover:text-purple-700 font-medium"
+              >
+                View All →
+              </button>
+            </div>
+            {debts.filter(d => !d.paid).length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>No active debts</p>
+                <button
+                  onClick={() => navigate("/dashboard/debts")}
+                  className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Add Debt
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {debts.filter(d => !d.paid).slice(0, 3).map(debt => (
+                  <div key={debt.id} className="flex justify-between items-center border-b pb-3">
+                    <div>
+                      <p className="font-medium text-gray-800">{debt.name}</p>
+                      <p className="text-sm text-gray-500">Due: {debt.dueDate || 'No date'}</p>
+                    </div>
+                    <p className="font-semibold text-orange-600">
+                      {currencySymbol} {parseFloat(debt.amount).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
