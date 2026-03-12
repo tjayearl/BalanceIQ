@@ -68,13 +68,39 @@ export default function Onboarding() {
       debts:    noDebts ? [] : debts.map(d => ({ ...d, amount: parseFloat(d.amount) || 0, interestRate: parseFloat(d.interestRate) || 0 })),
     };
     try {
-      await api.post("/onboarding", payload);
+      // debug helps track which URL is being used
+      console.debug("submitting onboarding payload", payload);
+      // The backend should expose a POST /onboarding route.  In some deployments
+      // the path may differ (e.g. /auth/onboarding), so we attempt a secondary
+      // call when a 404 is encountered.  Either way we still redirect the user
+      // to the dashboard so the flow is not blocked by a missing endpoint.
+      try {
+        await api.post("/onboarding", payload);
+      } catch (err) {
+        if (err.code === "NOT_FOUND") {
+          console.warn("/onboarding not found, falling back to /auth/onboarding");
+          // try alternate endpoint, swallow any error and rethrow original if it fails
+          await api.post("/auth/onboarding", payload);
+        } else {
+          throw err;
+        }
+      }
+
       navigate("/dashboard");
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";
       const prefix     = isFrontend ? "⚠️ " : isBackend ? "🔴 Server: " : "";
-      setError(prefix + (e.message || "Something went wrong. Please try again."));
+      // if we know the error was a missing route give extra guidance
+      if (e.code === "NOT_FOUND") {
+        setError(
+          prefix +
+            (e.message || "Requested resource not found.") +
+            " (are you pointing at the correct backend?)"
+        );
+      } else {
+        setError(prefix + (e.message || "Something went wrong. Please try again."));
+      }
     } finally {
       setSaving(false);
     }

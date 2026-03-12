@@ -14,6 +14,18 @@ import Settings from "./pages/Settings";
 
 import "./index.css";
 
+// the MetaMask inpage script can reject a promise when the extension is not
+// installed; the default error shows up in the console and might confuse users
+// during onboarding.  we catch and ignore it globally so the rest of the app keeps
+// running normally.
+window.addEventListener("unhandledrejection", e => {
+  const msg = e.reason && e.reason.message;
+  if (typeof msg === "string" && msg.includes("MetaMask extension not found")) {
+    console.warn("detected missing MetaMask extension, ignoring connection attempt");
+    e.preventDefault(); // suppress console error
+  }
+});
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
