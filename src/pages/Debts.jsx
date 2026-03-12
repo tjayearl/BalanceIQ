@@ -22,12 +22,29 @@ export default function Debts() {
   const [filter,   setFilter]   = useState("all");
 
   useEffect(() => {
+    // Try localStorage first
+    const stored = localStorage.getItem('debts');
+    if (stored) {
+      try {
+        setItems(JSON.parse(stored));
+        setLoading(false);
+        return;
+      } catch (e) {
+        console.error('Failed to load debts from localStorage:', e);
+      }
+    }
+
+    // Fallback to API/MOCK
     api.get("/debts")
       .then(r => {
         const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.debts ?? []);
         setItems(data);
+        localStorage.setItem('debts', JSON.stringify(data));
       })
-      .catch(() => setItems(MOCK))
+      .catch(() => {
+        setItems(MOCK);
+        localStorage.setItem('debts', JSON.stringify(MOCK));
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -37,27 +54,43 @@ export default function Debts() {
     if (!form.name.trim())                               { setError("Debt name is required."); return; }
     if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
     setSaving(true); setError("");
-    const payload = { ...form, amount: parseFloat(form.amount), interestRate: parseFloat(form.interestRate) || 0, paid: false };
+
+    const newDebt = { 
+      id: Date.now(),
+      ...form, 
+      amount: parseFloat(form.amount), 
+      interestRate: parseFloat(form.interestRate) || 0, 
+      paid: false 
+    };
+
     try {
-      const r = await api.post("/debts", payload);
-      setItems(p => [r.data, ...p]);
-      setShowForm(false); setForm(BLANK);
-    } catch (e) {
-      const isFrontend = e.type === "frontend";
-      const isBackend  = e.type === "backend";
-      const prefix     = isFrontend ? "⚠️ " : isBackend ? "🔴 Server: " : "";
-      setError(prefix + (e.message || "Something went wrong. Please try again."));
-    } finally { setSaving(false); }
+      const r = await api.post("/debts", newDebt);
+      const updated = [r.data, ...items];
+      setItems(updated);
+      localStorage.setItem('debts', JSON.stringify(updated));
+    } catch {
+      const updated = [newDebt, ...items];
+      setItems(updated);
+      localStorage.setItem('debts', JSON.stringify(updated));
+    } finally {
+      setShowForm(false); 
+      setForm(BLANK);
+      setSaving(false);
+    }
   };
 
   const handlePaid = async (id, paid) => {
-    try { await api.patch(`/debts/${id}`, { paid }); } catch {}
-    setItems(p => p.map(d => d.id === id ? { ...d, paid } : d));
+    try { await api.patch(`/debts/${id}`, { paid }); } catch { /* ignore */ }
+    const updated = items.map(d => d.id === id ? { ...d, paid } : d);
+    setItems(updated);
+    localStorage.setItem('debts', JSON.stringify(updated));
   };
 
   const handleDelete = async id => {
-    try { await api.delete(`/debts/${id}`); } catch {}
-    setItems(p => p.filter(d => d.id !== id));
+    try { await api.delete(`/debts/${id}`); } catch { /* ignore */ }
+    const updated = items.filter(d => d.id !== id);
+    setItems(updated);
+    localStorage.setItem('debts', JSON.stringify(updated));
   };
 
   const safeItems  = Array.isArray(items) ? items : [];

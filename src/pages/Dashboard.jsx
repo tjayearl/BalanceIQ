@@ -35,11 +35,22 @@ const TREND = [
 ];
 
 export default function Dashboard() {
+  const [userPrefs, setUserPrefs] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [debts,    setDebts]    = useState([]);
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
+    // load user preferences from onboarding if available
+    const raw = localStorage.getItem('balanceiq_onboarding');
+    if (raw) {
+      try {
+        setUserPrefs(JSON.parse(raw));
+      } catch (e) {
+        console.error('Failed to parse onboarding prefs:', e);
+      }
+    }
+
     (async () => {
       try {
         const [e, d] = await Promise.all([
@@ -50,7 +61,19 @@ export default function Dashboard() {
         const debtData = Array.isArray(d.data) ? d.data : (d.data?.data ?? d.data?.debts ?? []);
         setExpenses(expData); setDebts(debtData);
       } catch {
-        setExpenses(MOCK_EXPENSES); setDebts(MOCK_DEBTS);
+        // fallback to stored values or mock data
+        const storedExp = localStorage.getItem('expenses');
+        const storedDebt = localStorage.getItem('debts');
+        if (storedExp) {
+          try { setExpenses(JSON.parse(storedExp)); } catch { /* ignore parse errors */ };
+        } else {
+          setExpenses(MOCK_EXPENSES);
+        }
+        if (storedDebt) {
+          try { setDebts(JSON.parse(storedDebt)); } catch { /* ignore parse errors */ };
+        } else {
+          setDebts(MOCK_DEBTS);
+        }
       } finally { setLoading(false); }
     })();
   }, []);
@@ -59,6 +82,7 @@ export default function Dashboard() {
 
   const safeExpenses  = Array.isArray(expenses) ? expenses : [];
   const safeDebts     = Array.isArray(debts) ? debts : [];
+  const currencySymbol = userPrefs?.currency === 'KES' ? 'KSh' : '$';
   const totalExpenses = safeExpenses.reduce((s,e) => s + Number(e.amount), 0);
   const totalDebt     = safeDebts.filter(d => !d.paid).reduce((s,d) => s + Number(d.amount), 0);
   const overdueCount  = safeDebts.filter(d => !d.paid && d.dueDate && new Date(d.dueDate) < new Date()).length;
@@ -85,12 +109,12 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="stat-card__icon stat-card__icon--blue"><FiDollarSign /></div>
           <span className="stat-card__label">Monthly Expenses</span>
-          <span className="stat-card__value">${totalExpenses.toFixed(2)}</span>
+          <span className="stat-card__value">{currencySymbol}{totalExpenses.toFixed(2)}</span>
         </div>
         <div className="stat-card">
           <div className="stat-card__icon stat-card__icon--red"><FiTrendingDown /></div>
           <span className="stat-card__label">Total Debt</span>
-          <span className="stat-card__value c-danger">${totalDebt.toLocaleString()}</span>
+          <span className="stat-card__value c-danger">{currencySymbol}{totalDebt.toLocaleString()}</span>
         </div>
         <div className="stat-card">
           <div className="stat-card__icon stat-card__icon--yellow"><FiAlertCircle /></div>
@@ -151,7 +175,7 @@ export default function Dashboard() {
                 <span className="dash-row__dot" style={{ background: PIE_COLORS[Object.keys(catMap).indexOf(e.category) % PIE_COLORS.length] }} />
                 <span className="dash-row__title">{e.title}</span>
                 <span className="dash-row__cat">{e.category}</span>
-                <span className="dash-row__amount c-danger">-${Number(e.amount).toFixed(2)}</span>
+                <span className="dash-row__amount c-danger">-{currencySymbol}{Number(e.amount).toFixed(2)}</span>
               </div>
             ))
           }
@@ -168,7 +192,7 @@ export default function Dashboard() {
               <div key={d.id} className="dash-row">
                 <span className="dash-row__title">{d.name}</span>
                 {isOverdue(d) && <span className="badge badge--danger">Overdue</span>}
-                <span className="dash-row__amount c-danger" style={{ marginLeft:"auto" }}>${Number(d.amount).toLocaleString()}</span>
+                <span className="dash-row__amount c-danger" style={{ marginLeft:"auto" }}>{currencySymbol}{Number(d.amount).toLocaleString()}</span>
               </div>
             ))
           }

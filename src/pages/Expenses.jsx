@@ -24,12 +24,29 @@ export default function Expenses() {
   const [filter,   setFilter]   = useState("All");
 
   useEffect(() => {
+    // Try to load from localStorage first
+    const stored = localStorage.getItem('expenses');
+    if (stored) {
+      try {
+        setItems(JSON.parse(stored));
+        setLoading(false);
+        return;
+      } catch (e) {
+        console.error('Failed to load expenses from localStorage:', e);
+      }
+    }
+
+    // If no local storage data, fall back to API (or mock)
     api.get("/transactions")
       .then(r => {
         const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.expenses ?? []);
         setItems(data);
+        localStorage.setItem('expenses', JSON.stringify(data));
       })
-      .catch(() => setItems(MOCK))
+      .catch(() => {
+        setItems(MOCK);
+        localStorage.setItem('expenses', JSON.stringify(MOCK));
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -39,22 +56,36 @@ export default function Expenses() {
     if (!form.title.trim()) { setError("Title is required."); return; }
     if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
     setSaving(true); setError("");
-    const payload = { ...form, amount: parseFloat(form.amount) };
+
+    const newExpense = { 
+      id: Date.now(), // Generate unique ID
+      ...form, 
+      amount: parseFloat(form.amount),
+      date: form.date || new Date().toISOString().split('T')[0]
+    };
+
     try {
-      const r = await api.post("/transactions", payload);
-      setItems(p => [r.data, ...p]);
-      setShowForm(false); setForm(BLANK);
-    } catch (e) {
-      const isFrontend = e.type === "frontend";
-      const isBackend  = e.type === "backend";
-      const prefix     = isFrontend ? "⚠️ " : isBackend ? "🔴 Server: " : "";
-      setError(prefix + (e.message || "Something went wrong. Please try again."));
-    } finally { setSaving(false); }
+      const r = await api.post("/transactions", newExpense);
+      const updated = [r.data, ...items];
+      setItems(updated);
+      localStorage.setItem('expenses', JSON.stringify(updated));
+    } catch {
+      // API failed, just save locally
+      const updated = [newExpense, ...items];
+      setItems(updated);
+      localStorage.setItem('expenses', JSON.stringify(updated));
+    } finally {
+      setShowForm(false); 
+      setForm(BLANK);
+      setSaving(false);
+    }
   };
 
   const handleDelete = async id => {
-    try { await api.delete(`/transactions/${id}`); } catch {}
-    setItems(p => p.filter(e => e.id !== id));
+    try { await api.delete(`/transactions/${id}`); } catch { /* ignore */ }
+    const updated = items.filter(e => e.id !== id);
+    setItems(updated);
+    localStorage.setItem('expenses', JSON.stringify(updated));
   };
 
   const safeItems = Array.isArray(items) ? items : [];

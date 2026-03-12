@@ -58,24 +58,60 @@ export default function Onboarding() {
   const back = () => { setError(""); setStep(s => s - 1); };
 
   const handleFinish = () => {
-    // Save onboarding answers in localStorage for MVP testing; this lets the
-    // app proceed without needing any backend support.  The data can be
-    // retrieved later when extending to a real API.
+    // Prepare onboarding data
     const onboardingData = {
       workType,
       currency,
       incomes: incomes.map(i => ({ ...i, amount: parseFloat(i.amount) || 0 })),
       expenses: expenses.map(e => ({ ...e, amount: parseFloat(e.amount) || 0 })),
-      debts: noDebts ? [] : debts.map(d => ({ ...d, amount: parseFloat(d.amount) || 0 })),
-      completedAt: new Date().toISOString(),
+      debts: noDebts ? [] : debts.map(d => ({ 
+        ...d, 
+        amount: parseFloat(d.amount) || 0,
+        interestRate: parseFloat(d.interestRate) || 0,
+        paid: false 
+      })),
+      completedAt: new Date().toISOString()
     };
 
     try {
-      localStorage.setItem("balanceiq_onboarding", JSON.stringify(onboardingData));
+      // Save onboarding preferences
+      localStorage.setItem('balanceiq_onboarding', JSON.stringify(onboardingData));
+
+      // Also save as initial transactions/debts for the app to use
+      const existingExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      const existingDebts = JSON.parse(localStorage.getItem('debts') || '[]');
+
+      // Add onboarding expenses to storage with unique IDs and dates
+      const newExpenses = onboardingData.expenses.map((e, idx) => ({
+        id: Date.now() + idx,
+        title: e.description || `${e.category} Expense`,
+        amount: e.amount,
+        category: e.category,
+        date: new Date().toISOString().split('T')[0],
+        notes: "From onboarding setup"
+      }));
+
+      // Add onboarding debts to storage
+      const newDebts = onboardingData.debts.map((d, idx) => ({
+        id: Date.now() + idx + 1000,
+        name: d.name,
+        lender: d.lender || '',
+        amount: d.amount,
+        dueDate: d.dueDate || '',
+        interestRate: d.interestRate || 0,
+        paid: false,
+        notes: d.notes || "From onboarding setup"
+      }));
+
+      // Merge with existing data (in case user already added some)
+      localStorage.setItem('expenses', JSON.stringify([...existingExpenses, ...newExpenses]));
+      localStorage.setItem('debts', JSON.stringify([...existingDebts, ...newDebts]));
+
+      // Navigate to dashboard
       navigate("/dashboard");
-    } catch (err) {
-      console.error("Failed to save onboarding data:", err);
-      navigate("/dashboard"); // still move forward even if storage fails
+    } catch (e) {
+      console.error('Failed to save onboarding data:', e);
+      setError("Failed to save your data. Please try again.");
     }
   };
 

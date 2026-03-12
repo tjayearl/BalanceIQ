@@ -29,8 +29,9 @@ export default function Login() {
         password: form.password,
       });
       localStorage.setItem("token", r.data.access_token);
-      // always start with onboarding for now; backend doesn't drive this
-      navigate("/onboarding");
+      // redirect based on presence of onboarding data saved in localStorage
+      const hasOnboarding = localStorage.getItem('balanceiq_onboarding');
+      navigate(hasOnboarding ? "/dashboard" : "/onboarding");
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";
