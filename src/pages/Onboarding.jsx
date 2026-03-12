@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
-import { FiDollarSign, FiCheck, FiLoader, FiChevronRight, FiChevronLeft } from "react-icons/fi";
+import { FiDollarSign, FiCheck, FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import "./Onboarding.css";
 
 const CURRENCIES = [
@@ -27,7 +26,6 @@ const STEPS = ["Profile","Income","Expenses","Debts","Review"];
 export default function Onboarding() {
   const navigate  = useNavigate();
   const [step,    setStep]    = useState(0);
-  const [saving,  setSaving]  = useState(false);
   const [error,   setError]   = useState("");
 
   const [workType, setWorkType] = useState("");
@@ -59,50 +57,25 @@ export default function Onboarding() {
   const next = () => { if (validate()) setStep(s => s + 1); };
   const back = () => { setError(""); setStep(s => s - 1); };
 
-  const handleFinish = async () => {
-    setSaving(true); setError("");
-    const payload = {
-      workType, currency,
-      incomes:  incomes.map(i  => ({ ...i,  amount: parseFloat(i.amount)  || 0 })),
-      expenses: expenses.map(e => ({ ...e,  amount: parseFloat(e.amount)  || 0 })),
-      debts:    noDebts ? [] : debts.map(d => ({ ...d, amount: parseFloat(d.amount) || 0, interestRate: parseFloat(d.interestRate) || 0 })),
+  const handleFinish = () => {
+    // Save onboarding answers in localStorage for MVP testing; this lets the
+    // app proceed without needing any backend support.  The data can be
+    // retrieved later when extending to a real API.
+    const onboardingData = {
+      workType,
+      currency,
+      incomes: incomes.map(i => ({ ...i, amount: parseFloat(i.amount) || 0 })),
+      expenses: expenses.map(e => ({ ...e, amount: parseFloat(e.amount) || 0 })),
+      debts: noDebts ? [] : debts.map(d => ({ ...d, amount: parseFloat(d.amount) || 0 })),
+      completedAt: new Date().toISOString(),
     };
-    try {
-      // debug helps track which URL is being used
-      console.debug("submitting onboarding payload", payload);
-      // The backend should expose a POST /onboarding route.  In some deployments
-      // the path may differ (e.g. /auth/onboarding), so we attempt a secondary
-      // call when a 404 is encountered.  Either way we still redirect the user
-      // to the dashboard so the flow is not blocked by a missing endpoint.
-      try {
-        await api.post("/onboarding", payload);
-      } catch (err) {
-        if (err.code === "NOT_FOUND") {
-          console.warn("/onboarding not found, falling back to /auth/onboarding");
-          // try alternate endpoint, swallow any error and rethrow original if it fails
-          await api.post("/auth/onboarding", payload);
-        } else {
-          throw err;
-        }
-      }
 
+    try {
+      localStorage.setItem("balanceiq_onboarding", JSON.stringify(onboardingData));
       navigate("/dashboard");
-    } catch (e) {
-      const isFrontend = e.type === "frontend";
-      const isBackend  = e.type === "backend";
-      const prefix     = isFrontend ? "⚠️ " : isBackend ? "🔴 Server: " : "";
-      // if we know the error was a missing route give extra guidance
-      if (e.code === "NOT_FOUND") {
-        setError(
-          prefix +
-            (e.message || "Requested resource not found.") +
-            " (are you pointing at the correct backend?)"
-        );
-      } else {
-        setError(prefix + (e.message || "Something went wrong. Please try again."));
-      }
-    } finally {
-      setSaving(false);
+    } catch (err) {
+      console.error("Failed to save onboarding data:", err);
+      navigate("/dashboard"); // still move forward even if storage fails
     }
   };
 
@@ -375,8 +348,8 @@ export default function Onboarding() {
                 Continue <FiChevronRight />
               </button>
             ) : (
-              <button className="btn btn--primary btn--lg" onClick={handleFinish} disabled={saving} type="button">
-                {saving ? <><FiLoader className="spin" /> Setting up…</> : <>Go to My Dashboard <FiChevronRight /></>}
+              <button className="btn btn--primary btn--lg" onClick={handleFinish} type="button">
+                Go to My Dashboard <FiChevronRight />
               </button>
             )}
           </div>

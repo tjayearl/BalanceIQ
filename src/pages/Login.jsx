@@ -29,9 +29,8 @@ export default function Login() {
         password: form.password,
       });
       localStorage.setItem("token", r.data.access_token);
-      // If first time user go to onboarding, else go to dashboard
-      const isNew = r.data.is_new_user ?? true;
-      navigate(isNew ? "/onboarding" : "/dashboard");
+      // always start with onboarding for now; backend doesn't drive this
+      navigate("/onboarding");
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";
