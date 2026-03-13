@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../utils/storage";
 import { FiDollarSign, FiCheck, FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import "./Onboarding.css";
 
@@ -74,12 +75,12 @@ export default function Onboarding() {
     };
 
     try {
-      // Save onboarding preferences
-      localStorage.setItem('balanceiq_onboarding', JSON.stringify(onboardingData));
+      // Save onboarding preferences (USER-SPECIFIC)
+      storage.setItem('balanceiq_onboarding', JSON.stringify(onboardingData));
 
-      // Also save as initial transactions/debts for the app to use
-      const existingExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-      const existingDebts = JSON.parse(localStorage.getItem('debts') || '[]');
+      // Get existing data (USER-SPECIFIC)
+      const existingExpenses = JSON.parse(storage.getItem('expenses') || '[]');
+      const existingDebts = JSON.parse(storage.getItem('debts') || '[]');
 
       // Add onboarding expenses to storage with unique IDs and dates
       const newExpenses = onboardingData.expenses.map((e, idx) => ({
@@ -103,9 +104,9 @@ export default function Onboarding() {
         notes: d.notes || "From onboarding setup"
       }));
 
-      // Merge with existing data (in case user already added some)
-      localStorage.setItem('expenses', JSON.stringify([...existingExpenses, ...newExpenses]));
-      localStorage.setItem('debts', JSON.stringify([...existingDebts, ...newDebts]));
+      // Save (USER-SPECIFIC)
+      storage.setItem('expenses', JSON.stringify([...existingExpenses, ...newExpenses]));
+      storage.setItem('debts', JSON.stringify([...existingDebts, ...newDebts]));
 
       // Navigate to dashboard
       navigate("/dashboard");

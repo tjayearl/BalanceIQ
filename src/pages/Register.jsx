@@ -50,7 +50,11 @@ export default function Register() {
         email:    form.email,
         password: form.password,
       });
+      // Save token and user info
       localStorage.setItem("token", r.data.access_token);
+      localStorage.setItem("user_id", r.data.user_id); // NEW: Save user ID
+      localStorage.setItem("user_email", form.email); // NEW: Optional
+      
       navigate("/onboarding");
     } catch (e) {
       const isFrontend = e.type === "frontend";

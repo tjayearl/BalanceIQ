@@ -28,14 +28,15 @@ export default function Login() {
         email:    form.email,
         password: form.password,
       });
+      // Save token and user info
       localStorage.setItem("token", r.data.access_token);
-      // redirect based on presence of onboarding data saved in localStorage
-      const onboardingDone = localStorage.getItem('expenses');
-      if (onboardingDone) {
-        navigate("/dashboard");
-      } else {
-        navigate("/onboarding");
-      }
+      localStorage.setItem("user_id", r.data.user_id); // NEW: Save user ID
+      localStorage.setItem("user_email", form.email); // NEW: Optional, for display
+      
+      // Check if user has completed onboarding (USER-SPECIFIC)
+      const hasOnboarding = localStorage.getItem(`balanceiq_onboarding_${r.data.user_id}`);
+      
+      navigate(hasOnboarding ? "/dashboard" : "/onboarding");
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";

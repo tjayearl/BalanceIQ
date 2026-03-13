@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { FinanceContext } from "../context/FinanceContext";
+import { storage } from "../utils/storage";
 import api from "../api";
 import { FiPlus, FiTrash2, FiDollarSign, FiTag, FiCalendar, FiLoader, FiX } from "react-icons/fi";
 import "./Expenses.css";

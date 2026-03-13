@@ -1,26 +1,27 @@
 import { createContext, useState, useEffect } from "react";
+import { storage } from "../utils/storage";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const FinanceContext = createContext();
 
 export function FinanceProvider({ children }) {
   const [expenses, setExpenses] = useState(() => {
-    const saved = localStorage.getItem("expenses");
+    const saved = storage.getItem("expenses");
     return saved ? JSON.parse(saved) : [];
   });
 
   const [debts, setDebts] = useState(() => {
-    const saved = localStorage.getItem("debts");
+    const saved = storage.getItem("debts");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Save to localStorage (MVP persistence)
+  // Save to user-specific localStorage
   useEffect(() => {
-    localStorage.setItem("expenses", JSON.stringify(expenses));
+    storage.setItem("expenses", JSON.stringify(expenses));
   }, [expenses]);
 
   useEffect(() => {
-    localStorage.setItem("debts", JSON.stringify(debts));
+    storage.setItem("debts", JSON.stringify(debts));
   }, [debts]);
 
   // ====== ACTIONS ======

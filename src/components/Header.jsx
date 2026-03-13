@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { storage } from '../utils/storage';
 import { AiOutlineBell, AiOutlineUser, AiOutlineSetting, AiOutlineLogout, AiOutlineQuestionCircle, AiOutlineLock } from 'react-icons/ai';
 import icon from '../assets/BalanceIQ-icon.png';
 import './Header.css';
@@ -27,6 +28,7 @@ function Header() {
 
   const handleLogout = () => {
     setShowProfileMenu(false);
+    storage.clearAll(); // Clear all user data
     navigate('/'); // Redirect to landing page
   };
 

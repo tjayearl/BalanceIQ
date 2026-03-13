@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FinanceContext } from "../context/FinanceContext";
+import { storage } from "../utils/storage";
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -14,8 +15,8 @@ export default function Dashboard() {
   const debts = allDebts.filter(d => d.notes === "From onboarding setup");
 
   useEffect(() => {
-    // Load user preferences from onboarding
-    const onboardingData = localStorage.getItem('balanceiq_onboarding');
+    // Load user preferences from onboarding (USER-SPECIFIC)
+    const onboardingData = storage.getItem('balanceiq_onboarding');
     if (onboardingData) {
       try {
         const prefs = JSON.parse(onboardingData);
