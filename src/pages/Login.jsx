@@ -30,7 +30,12 @@ export default function Login() {
       });
       localStorage.setItem("token", r.data.access_token);
       // redirect based on presence of onboarding data saved in localStorage
-      navigate("/dashboard");
+      const onboardingDone = localStorage.getItem('expenses');
+      if (onboardingDone) {
+        navigate("/dashboard");
+      } else {
+        navigate("/onboarding");
+      }
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";
