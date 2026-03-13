@@ -30,8 +30,7 @@ export default function Login() {
       });
       localStorage.setItem("token", r.data.access_token);
       // redirect based on presence of onboarding data saved in localStorage
-      const hasOnboarding = localStorage.getItem('balanceiq_onboarding');
-      navigate(hasOnboarding ? "/dashboard" : "/onboarding");
+      navigate("/dashboard");
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";

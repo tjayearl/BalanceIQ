@@ -1,22 +1,23 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FinanceContext } from "../context/FinanceContext";
 import "./Dashboard.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { expenses, debts } = useContext(FinanceContext);
   const [userPrefs, setUserPrefs] = useState(null);
+  const [expenses, setExpenses] = useState([]);
+  const [debts, setDebts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load user preferences from onboarding
+    // Load user preferences and data from onboarding
     const onboardingData = localStorage.getItem('balanceiq_onboarding');
     if (onboardingData) {
       try {
         const prefs = JSON.parse(onboardingData);
-        // defer state update to avoid cascading render warning
-        setTimeout(() => setUserPrefs(prefs), 0);
+        setUserPrefs(prefs);
+        setExpenses(prefs.expenses || []);
+        setDebts(prefs.debts || []);
       } catch (e) {
         console.error('Failed to load user preferences:', e);
       }

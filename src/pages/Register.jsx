@@ -51,7 +51,7 @@ export default function Register() {
         password: form.password,
       });
       localStorage.setItem("token", r.data.access_token);
-      navigate("/onboarding");
+      navigate("/");
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";
