@@ -6,13 +6,6 @@ import "./Expenses.css";
 
 const CATEGORIES = ["Food","Transport","Housing","Entertainment","Health","Shopping","Utilities","Other"];
 const CAT_COLOR  = { Food:"#10b981", Transport:"#3b82f6", Housing:"#f59e0b", Entertainment:"#8b5cf6", Health:"#ef4444", Shopping:"#ec4899", Utilities:"#06b6d4", Other:"#64748b" };
-const MOCK = [
-  { id:1, title:"Monthly Rent",  amount:1200,  category:"Housing",       date:"2026-03-01", notes:"" },
-  { id:2, title:"Bus Pass",      amount:45,    category:"Transport",     date:"2026-03-02", notes:"" },
-  { id:3, title:"Netflix",       amount:15.99, category:"Entertainment", date:"2026-03-03", notes:"" },
-  { id:4, title:"Grocery Run",   amount:85.40, category:"Food",          date:"2026-03-04", notes:"Whole Foods" },
-  { id:5, title:"Doctor Visit",  amount:120,   category:"Health",        date:"2026-02-28", notes:"Co-pay" },
-];
 const BLANK = { title:"", amount:"", category:"Food", date: new Date().toISOString().split("T")[0], notes:"" };
 
 export default function Expenses() {

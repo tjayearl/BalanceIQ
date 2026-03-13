@@ -4,12 +4,6 @@ import api from "../api";
 import { FiPlus, FiTrash2, FiCheckCircle, FiAlertCircle, FiDollarSign, FiCalendar, FiUser, FiLoader, FiX, FiRotateCcw } from "react-icons/fi";
 import "./Debts.css";
 
-const MOCK = [
-  { id:1, name:"Car Loan",      lender:"Bank of America", amount:8500,  dueDate:"2026-12-01", interestRate:4.5,  paid:false, notes:"Monthly: $210" },
-  { id:2, name:"Credit Card",   lender:"Chase",           amount:2300,  dueDate:"2026-04-01", interestRate:19.9, paid:false, notes:"" },
-  { id:3, name:"Student Loan",  lender:"Sallie Mae",      amount:15000, dueDate:"2030-06-01", interestRate:5.0,  paid:false, notes:"Income-driven repayment" },
-  { id:4, name:"Personal Loan", lender:"Friend — Mike",   amount:500,   dueDate:"2026-02-15", interestRate:0,    paid:true,  notes:"Paid back in full" },
-];
 const BLANK = { name:"", lender:"", amount:"", dueDate:"", interestRate:"", notes:"" };
 const isOverdue = d => !d.paid && d.dueDate && new Date(d.dueDate) < new Date();
 
