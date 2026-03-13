@@ -3,7 +3,7 @@ import { AiOutlinePlus, AiOutlineSearch, AiOutlineEdit, AiOutlineDelete, AiOutli
 import "./Taxes.css";
 
 const Taxes = () => {
-  const [taxes, setTaxes] = useState([
+  const [taxes] = useState([
     { id: 1, type: "Income Tax", amount: 15000, dueDate: "2026-02-28", status: "Pending" },
     { id: 2, type: "VAT", amount: 5000, dueDate: "2026-03-15", status: "Paid" },
     { id: 3, type: "Property Tax", amount: 25000, dueDate: "2026-04-01", status: "Pending" },

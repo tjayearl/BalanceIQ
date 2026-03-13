@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { FinanceContext } from "../context/FinanceContext";
 import api from "../api";
 import { FiPlus, FiTrash2, FiCheckCircle, FiAlertCircle, FiDollarSign, FiCalendar, FiUser, FiLoader, FiX, FiRotateCcw } from "react-icons/fi";
 import "./Debts.css";
@@ -13,40 +14,17 @@ const BLANK = { name:"", lender:"", amount:"", dueDate:"", interestRate:"", note
 const isOverdue = d => !d.paid && d.dueDate && new Date(d.dueDate) < new Date();
 
 export default function Debts() {
-  const [items,    setItems]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const { debts, addDebt, updateDebt, deleteDebt } = useContext(FinanceContext);
+  const [items, setItems] = useState(debts);
   const [showForm, setShowForm] = useState(false);
-  const [form,     setForm]     = useState(BLANK);
-  const [error,    setError]    = useState("");
-  const [saving,   setSaving]   = useState(false);
-  const [filter,   setFilter]   = useState("all");
+  const [form, setForm] = useState(BLANK);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    // Try localStorage first
-    const stored = localStorage.getItem('debts');
-    if (stored) {
-      try {
-        setItems(JSON.parse(stored));
-        setLoading(false);
-        return;
-      } catch (e) {
-        console.error('Failed to load debts from localStorage:', e);
-      }
-    }
-
-    // Fallback to API/MOCK
-    api.get("/debts")
-      .then(r => {
-        const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.debts ?? []);
-        setItems(data);
-        localStorage.setItem('debts', JSON.stringify(data));
-      })
-      .catch(() => {
-        setItems(MOCK);
-        localStorage.setItem('debts', JSON.stringify(MOCK));
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    setItems(debts);
+  }, [debts]);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -64,33 +42,24 @@ export default function Debts() {
     };
 
     try {
-      const r = await api.post("/debts", newDebt);
-      const updated = [r.data, ...items];
-      setItems(updated);
-      localStorage.setItem('debts', JSON.stringify(updated));
+      await api.post("/debts", newDebt);
     } catch {
-      const updated = [newDebt, ...items];
-      setItems(updated);
-      localStorage.setItem('debts', JSON.stringify(updated));
-    } finally {
-      setShowForm(false); 
-      setForm(BLANK);
-      setSaving(false);
+      // ignore
     }
+    addDebt(newDebt);
+    setShowForm(false); 
+    setForm(BLANK);
+    setSaving(false);
   };
 
   const handlePaid = async (id, paid) => {
     try { await api.patch(`/debts/${id}`, { paid }); } catch { /* ignore */ }
-    const updated = items.map(d => d.id === id ? { ...d, paid } : d);
-    setItems(updated);
-    localStorage.setItem('debts', JSON.stringify(updated));
+    updateDebt(id, { paid });
   };
 
   const handleDelete = async id => {
     try { await api.delete(`/debts/${id}`); } catch { /* ignore */ }
-    const updated = items.filter(d => d.id !== id);
-    setItems(updated);
-    localStorage.setItem('debts', JSON.stringify(updated));
+    deleteDebt(id);
   };
 
   const safeItems  = Array.isArray(items) ? items : [];
@@ -167,9 +136,7 @@ export default function Debts() {
         </div>
       )}
 
-      {loading ? (
-        <div className="loading"><FiLoader className="spin" /> Loading…</div>
-      ) : visible.length === 0 ? (
+      {visible.length === 0 ? (
         <div className="empty"><FiDollarSign className="empty__icon" /><p>No debts found.</p></div>
       ) : (
         <div className="debt-list">

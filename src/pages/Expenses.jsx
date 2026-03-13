@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { FinanceContext } from "../context/FinanceContext";
 import api from "../api";
 import { FiPlus, FiTrash2, FiDollarSign, FiTag, FiCalendar, FiLoader, FiX } from "react-icons/fi";
 import "./Expenses.css";
@@ -15,40 +16,17 @@ const MOCK = [
 const BLANK = { title:"", amount:"", category:"Food", date: new Date().toISOString().split("T")[0], notes:"" };
 
 export default function Expenses() {
-  const [items,    setItems]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const { expenses, addExpense, deleteExpense } = useContext(FinanceContext);
+  const [items, setItems] = useState(expenses);
   const [showForm, setShowForm] = useState(false);
-  const [form,     setForm]     = useState(BLANK);
-  const [error,    setError]    = useState("");
-  const [saving,   setSaving]   = useState(false);
-  const [filter,   setFilter]   = useState("All");
+  const [form, setForm] = useState(BLANK);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [filter, setFilter] = useState("All");
 
   useEffect(() => {
-    // Try to load from localStorage first
-    const stored = localStorage.getItem('expenses');
-    if (stored) {
-      try {
-        setItems(JSON.parse(stored));
-        setLoading(false);
-        return;
-      } catch (e) {
-        console.error('Failed to load expenses from localStorage:', e);
-      }
-    }
-
-    // If no local storage data, fall back to API (or mock)
-    api.get("/transactions")
-      .then(r => {
-        const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.expenses ?? []);
-        setItems(data);
-        localStorage.setItem('expenses', JSON.stringify(data));
-      })
-      .catch(() => {
-        setItems(MOCK);
-        localStorage.setItem('expenses', JSON.stringify(MOCK));
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    setItems(expenses);
+  }, [expenses]);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -65,27 +43,19 @@ export default function Expenses() {
     };
 
     try {
-      const r = await api.post("/transactions", newExpense);
-      const updated = [r.data, ...items];
-      setItems(updated);
-      localStorage.setItem('expenses', JSON.stringify(updated));
+      await api.post("/transactions", newExpense);
     } catch {
-      // API failed, just save locally
-      const updated = [newExpense, ...items];
-      setItems(updated);
-      localStorage.setItem('expenses', JSON.stringify(updated));
-    } finally {
-      setShowForm(false); 
-      setForm(BLANK);
-      setSaving(false);
+      // API failed, but still add locally
     }
+    addExpense(newExpense);
+    setShowForm(false); 
+    setForm(BLANK);
+    setSaving(false);
   };
 
   const handleDelete = async id => {
     try { await api.delete(`/transactions/${id}`); } catch { /* ignore */ }
-    const updated = items.filter(e => e.id !== id);
-    setItems(updated);
-    localStorage.setItem('expenses', JSON.stringify(updated));
+    deleteExpense(id);
   };
 
   const safeItems = Array.isArray(items) ? items : [];
@@ -152,9 +122,7 @@ export default function Expenses() {
         </div>
       )}
 
-      {loading ? (
-        <div className="loading"><FiLoader className="spin" /> Loading…</div>
-      ) : visible.length === 0 ? (
+      {visible.length === 0 ? (
         <div className="empty"><FiDollarSign className="empty__icon" /><p>No expenses found.</p></div>
       ) : (
         <div className="expense-list">

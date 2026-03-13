@@ -1,8 +1,223 @@
-.stat-card__icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:1rem; margin-bottom:0.5rem; }
-.stat-card__icon--blue   { background:#dbeafe; color:#2563eb; }
-.stat-card__icon--red    { background:#fee2e2; color:#ef4444; }
-.stat-card__icon--yellow { background:#fef3c7; color:#f59e0b; }
-.stat-card__icon--green  { background:#d1fae5; color:#10b981; }
+.dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f2f8 0%, #e0e7ff 100%);
+  padding: 2rem;
+}
+
+.dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard__title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.dashboard__sub {
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.dashboard__logout {
+  padding: 0.5rem 1rem;
+  background: #ef4444;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dashboard__logout:hover {
+  background: #dc2626;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+}
+
+.stat-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card__icon--blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.stat-card__icon--red {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.stat-card__icon--yellow {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.stat-card__icon--green {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.stat-card__label {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card__value {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.section {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+}
+
+.section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.section__link {
+  color: #2563eb;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: inherit;
+}
+
+.section__link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.section__empty {
+  text-align: center;
+  padding: 2rem 0;
+  color: #64748b;
+}
+
+.section__empty p {
+  margin-bottom: 1rem;
+}
+
+.section__add-btn {
+  padding: 0.5rem 1rem;
+  background: #2563eb;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.section__add-btn:hover {
+  background: #1d4ed8;
+}
+
+.expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0.75rem;
+}
+
+.expense-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.expense-item__info h4 {
+  font-weight: 500;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+  margin: 0;
+}
+
+.expense-item__category {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.expense-item__amount {
+  font-weight: 600;
+  color: #ef4444;
+  font-family: var(--font-mono);
+}
+
+.debt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0.75rem;
+}
+
+.debt-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.debt-item__info h4 {
+  font-weight: 500;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+  margin: 0;
+}
+
+.debt-item__amount {
+  font-weight: 600;
+  color: #f59e0b;
+  font-family: var(--font-mono);
+}
 
 .dash-charts { display:grid; grid-template-columns:1fr 340px; gap:0.875rem; margin-bottom:0.875rem; }
 

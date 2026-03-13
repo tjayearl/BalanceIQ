@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const FinanceContext = createContext();
 
 export function FinanceProvider({ children }) {
@@ -27,8 +28,24 @@ export function FinanceProvider({ children }) {
     setExpenses((prev) => [...prev, expense]);
   };
 
+  const updateExpense = (id, updates) => {
+    setExpenses((prev) => prev.map(e => e.id === id ? { ...e, ...updates } : e));
+  };
+
+  const deleteExpense = (id) => {
+    setExpenses((prev) => prev.filter(e => e.id !== id));
+  };
+
   const addDebt = (debt) => {
     setDebts((prev) => [...prev, debt]);
+  };
+
+  const updateDebt = (id, updates) => {
+    setDebts((prev) => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+  };
+
+  const deleteDebt = (id) => {
+    setDebts((prev) => prev.filter(d => d.id !== id));
   };
 
   return (
@@ -37,7 +54,11 @@ export function FinanceProvider({ children }) {
         expenses,
         debts,
         addExpense,
+        updateExpense,
+        deleteExpense,
         addDebt,
+        updateDebt,
+        deleteDebt,
       }}
     >
       {children}

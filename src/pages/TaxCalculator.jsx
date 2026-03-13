@@ -12,13 +12,14 @@ const BRACKETS = {
 const STD_DED = { single:14600, married_jointly:29200, married_separately:14600, head_of_household:21900 };
 
 function calcTax(income, status) {
-  let tax = 0, prev = 0, breakdown = [];
+  let tax = 0, breakdown = [];
+  let prevMax = 0;
   for (const b of BRACKETS[status]) {
-    if (income <= prev) break;
-    const taxable = Math.min(income, b.max) - prev;
+    if (income <= prevMax) break;
+    const taxable = Math.min(income, b.max) - prevMax;
     tax += taxable * b.rate;
     breakdown.push({ rate: b.rate * 100, taxable, tax: taxable * b.rate });
-    prev = b.max;
+    prevMax = b.max;
   }
   return { tax, breakdown };
 }
@@ -26,7 +27,7 @@ function calcTax(income, status) {
 function marginalRate(income, status) {
   let prev = 0;
   for (const b of BRACKETS[status]) {
-    if (income <= b.max) return b.rate * 100;
+    if (income > prev && income <= b.max) return b.rate * 100;
     prev = b.max;
   }
   return 37;
