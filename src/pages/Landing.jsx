@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import "./Landing.css";
 
 const FEATURES = [
@@ -15,6 +16,15 @@ const STEPS = [
 ];
 
 export default function Landing() {
+  useEffect(() => {
+    // Check for MetaMask or Ethereum provider
+    if (typeof window !== 'undefined' && !window.ethereum) {
+      console.warn('MetaMask or Ethereum provider not detected. Some features may not work.');
+      // Optionally, show a user-friendly message
+      // alert('For the best experience, please install MetaMask browser extension.');
+    }
+  }, []);
+
   return (
     <div className="landing">
 

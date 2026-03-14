@@ -82,7 +82,18 @@ export default function Onboarding() {
       navigate("/dashboard");
     } catch (e) {
       console.error('Failed to save onboarding data:', e);
-      setError(e.message || "Failed to save your data. Please try again.");
+      let errorMessage = "Failed to save your data. Please try again.";
+      if (e.response) {
+        // Server responded with error
+        errorMessage = e.response.data?.message || e.response.data?.error || `Server error: ${e.response.status}`;
+      } else if (e.request) {
+        // Request made but no response
+        errorMessage = "Unable to connect to the server. Please check your internet connection.";
+      } else if (e.message) {
+        // Other error
+        errorMessage = e.message;
+      }
+      setError(errorMessage);
     }
   };
 
