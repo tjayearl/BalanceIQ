@@ -1,171 +1,236 @@
-import { useState, useEffect, useContext } from "react";
-import { FinanceContext } from "../context/FinanceContext";
-import { storage, getCurrencySymbol } from "../utils/storage";
+import { useState, useEffect } from "react";
 import api from "../api";
-import { FiPlus, FiTrash2, FiCheckCircle, FiAlertCircle, FiDollarSign, FiCalendar, FiUser, FiLoader, FiX, FiRotateCcw } from "react-icons/fi";
-import "./Debts.css";
 
-const BLANK = { name:"", lender:"", amount:"", dueDate:"", interestRate:"", notes:"" };
-const isOverdue = d => !d.paid && d.dueDate && new Date(d.dueDate) < new Date();
+const EMPTY_DEBT_FORM = {
+  name: "",
+  lender: "",
+  amount: "",
+  dueDate: "",
+  interestRate: "",
+  notes: ""
+};
 
 export default function Debts() {
-  const { debts, addDebt, updateDebt, deleteDebt } = useContext(FinanceContext);
-  const [items, setItems] = useState(debts);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(BLANK);
-  const [error, setError] = useState("");
+  const [form, setForm] = useState(EMPTY_DEBT_FORM);
   const [saving, setSaving] = useState(false);
-  const [filter, setFilter] = useState("all");
-
-  const currencySymbol = getCurrencySymbol();
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setItems(debts);
-  }, [debts]);
+    loadDebts();
+  }, []);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const loadDebts = async () => {
+    try {
+      setLoading(true);
+      const r = await api.get("/debts");
+      const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.debts ?? []);
+      setItems(data);
+    } catch (e) {
+      console.error("Failed to load debts:", e);
+      setError(e.message || "Failed to load debts");
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAdd = async () => {
-    if (!form.name.trim())                               { setError("Debt name is required."); return; }
-    if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
-    setSaving(true); setError("");
-
+    if (!form.name.trim()) { setError("Debt name is required."); return; }
+    if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { 
+      setError("Enter a valid amount."); 
+      return; 
+    }
+    
+    setSaving(true);
+    setError("");
+    
     const newDebt = { 
-      id: Date.now(),
       ...form, 
       amount: parseFloat(form.amount), 
-      interestRate: parseFloat(form.interestRate) || 0, 
-      paid: false 
+      interestRate: parseFloat(form.interestRate) || 0
     };
-
+    
     try {
-      await api.post("/debts", newDebt);
-    } catch {
-      // ignore
+      const r = await api.post("/debts", newDebt);
+      setItems([r.data, ...items]);
+      setShowForm(false);
+      setForm(EMPTY_DEBT_FORM);
+    } catch (e) {
+      console.error("Failed to add debt:", e);
+      setError(e.message || "Failed to add debt");
+    } finally {
+      setSaving(false);
     }
-    addDebt(newDebt);
-    setShowForm(false); 
-    setForm(BLANK);
-    setSaving(false);
   };
 
   const handlePaid = async (id, paid) => {
-    try { await api.patch(`/debts/${id}`, { paid }); } catch { /* ignore */ }
-    updateDebt(id, { paid });
+    try {
+      await api.patch(`/debts/${id}`, { paid });
+      setItems(items.map(d => d.id === id ? { ...d, paid } : d));
+    } catch (e) {
+      console.error("Failed to update debt:", e);
+      setError(e.message || "Failed to update debt");
+    }
   };
 
-  const handleDelete = async id => {
-    try { await api.delete(`/debts/${id}`); } catch { /* ignore */ }
-    deleteDebt(id);
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this debt?")) return;
+    
+    try {
+      await api.delete(`/debts/${id}`);
+      setItems(items.filter(d => d.id !== id));
+    } catch (e) {
+      console.error("Failed to delete debt:", e);
+      setError(e.message || "Failed to delete debt");
+    }
   };
 
-  const safeItems  = Array.isArray(items) ? items : [];
-  const visible    = safeItems.filter(d => filter === "paid" ? d.paid : filter === "unpaid" ? !d.paid : true);
-  const totalOwed  = safeItems.filter(d => !d.paid).reduce((s,d) => s + Number(d.amount), 0);
-  const totalPaid  = safeItems.filter(d =>  d.paid).reduce((s,d) => s + Number(d.amount), 0);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-gray-600">Loading debts...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">Debt Management</h1>
-          <p className="page__sub">Owed: <strong className="c-danger">{currencySymbol}{totalOwed.toLocaleString()}</strong> · Cleared: <strong className="c-success">{currencySymbol}{totalPaid.toLocaleString()}</strong></p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Debts</h1>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            {showForm ? "Cancel" : "+ Add Debt"}
+          </button>
         </div>
-        <button className="btn btn--primary" onClick={() => { setShowForm(true); setError(""); setForm(BLANK); }}>
-          <FiPlus /> Add Debt
-        </button>
-      </div>
 
-      <div className="stats-grid">
-        <div className="stat-card"><span className="stat-card__label">Active Debts</span><span className="stat-card__value c-danger">{safeItems.filter(d => !d.paid).length}</span></div>
-        <div className="stat-card"><span className="stat-card__label">Total Balance</span><span className="stat-card__value c-danger">{currencySymbol}{totalOwed.toLocaleString()}</span></div>
-        <div className="stat-card"><span className="stat-card__label">Overdue</span><span className="stat-card__value c-warning">{safeItems.filter(isOverdue).length}</span></div>
-        <div className="stat-card"><span className="stat-card__label">Debts Cleared</span><span className="stat-card__value c-success">{safeItems.filter(d => d.paid).length}</span></div>
-      </div>
-
-      <div className="chips">
-        {[["all","All"],["unpaid","Unpaid"],["paid","Paid"]].map(([v,l]) => (
-          <button key={v} className={`chip ${filter === v ? "chip--active" : ""}`} onClick={() => setFilter(v)}>{l}</button>
-        ))}
-      </div>
-
-      {showForm && (
-        <div className="modal-bg" onClick={() => setShowForm(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal__head">
-              <h2 className="modal__title">Add Debt</h2>
-              <button className="btn-icon btn-icon--ghost" onClick={() => setShowForm(false)}><FiX /></button>
-            </div>
-            {error && <div className="form-error">{error}</div>}
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">Debt Name</label>
-                <div className="input-wrap"><FiUser className="input-icon" /><input className="form-input" placeholder="e.g. Car Loan" value={form.name} onChange={e => set("name", e.target.value)} /></div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Lender</label>
-                <div className="input-wrap"><FiUser className="input-icon" /><input className="form-input" placeholder="e.g. Bank of America" value={form.lender} onChange={e => set("lender", e.target.value)} /></div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Balance ({currencySymbol})</label>
-                <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" placeholder="0.00" value={form.amount} onChange={e => set("amount", e.target.value)} /></div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Interest Rate (%) <span className="form-hint">optional</span></label>
-                <input className="form-input" type="number" min="0" step="0.1" placeholder="0.00" value={form.interestRate} onChange={e => set("interestRate", e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Due Date <span className="form-hint">optional</span></label>
-                <div className="input-wrap"><FiCalendar className="input-icon" /><input className="form-input" type="date" value={form.dueDate} onChange={e => set("dueDate", e.target.value)} /></div>
-              </div>
-              <div className="form-group form-group--full">
-                <label className="form-label">Notes <span className="form-hint">optional</span></label>
-                <textarea className="form-textarea" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} />
-              </div>
-            </div>
-            <div className="modal__footer">
-              <button className="btn btn--secondary" onClick={() => setShowForm(false)}>Cancel</button>
-              <button className="btn btn--primary" onClick={handleAdd} disabled={saving}>
-                {saving ? <><FiLoader className="spin" /> Saving…</> : "Add Debt"}
-              </button>
-            </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
           </div>
-        </div>
-      )}
+        )}
 
-      {visible.length === 0 ? (
-        <div className="empty"><FiDollarSign className="empty__icon" /><p>No debts found.</p></div>
-      ) : (
-        <div className="debt-list">
-          {visible.map(d => (
-            <div key={d.id} className={`debt-card ${d.paid ? "debt-card--paid" : ""} ${isOverdue(d) ? "debt-card--overdue" : ""}`}>
-              <div className="debt-card__header">
-                <div className="debt-card__name-wrap">
-                  <span className="debt-card__name">{d.name}</span>
-                  {d.lender && <span className="debt-card__lender">{d.lender}</span>}
-                </div>
-                <div className="debt-card__badges">
-                  {d.paid       && <span className="badge badge--success"><FiCheckCircle /> Paid</span>}
-                  {isOverdue(d) && <span className="badge badge--danger"><FiAlertCircle /> Overdue</span>}
-                  {!d.paid && d.interestRate > 0 && <span className="badge badge--neutral">{d.interestRate}% APR</span>}
-                </div>
-              </div>
-              <div className="debt-card__meta">
-                <span className={`debt-card__amount ${d.paid ? "c-success" : "c-danger"}`}>{currencySymbol}{Number(d.amount).toLocaleString()}</span>
-                {d.dueDate && <span className="debt-card__due"><FiCalendar /> Due {d.dueDate}</span>}
-              </div>
-              {d.notes && <p className="debt-card__notes">{d.notes}</p>}
-              <div className="debt-card__actions">
-                {!d.paid
-                  ? <button className="btn btn--success btn--sm" onClick={() => handlePaid(d.id, true)}><FiCheckCircle /> Mark as Paid</button>
-                  : <button className="btn btn--secondary btn--sm" onClick={() => handlePaid(d.id, false)}><FiRotateCcw /> Undo Paid</button>
-                }
-                <button className="btn-icon btn-icon--danger" onClick={() => handleDelete(d.id)}><FiTrash2 /></button>
-              </div>
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Add New Debt</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Debt Name"
+                value={form.name}
+                onChange={e => setForm({...form, name: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Lender (optional)"
+                value={form.lender}
+                onChange={e => setForm({...form, lender: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
+              <input
+                type="number"
+                placeholder="Amount"
+                value={form.amount}
+                onChange={e => setForm({...form, amount: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
+              <input
+                type="number"
+                placeholder="Interest Rate (%)"
+                value={form.interestRate}
+                onChange={e => setForm({...form, interestRate: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
+              <input
+                type="date"
+                placeholder="Due Date"
+                value={form.dueDate}
+                onChange={e => setForm({...form, dueDate: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
             </div>
-          ))}
-        </div>
-      )}
+            <textarea
+              placeholder="Notes (optional)"
+              value={form.notes}
+              onChange={e => setForm({...form, notes: e.target.value})}
+              className="w-full px-4 py-2 border rounded-lg mt-4"
+              rows="2"
+            />
+            <button
+              onClick={handleAdd}
+              disabled={saving}
+              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save Debt"}
+            </button>
+          </div>
+        )}
+
+        {items.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-12 text-center">
+            <p className="text-gray-500 mb-4">No debts tracked</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Add Your First Debt
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {items.map(debt => (
+              <div key={debt.id} className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800">{debt.name}</h3>
+                    {debt.lender && <p className="text-gray-600">Lender: {debt.lender}</p>}
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-sm ${debt.paid ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                    {debt.paid ? 'Paid' : 'Unpaid'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div>
+                    <p className="text-gray-600 text-sm">Amount</p>
+                    <p className="font-semibold text-lg">${parseFloat(debt.amount).toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm">Interest Rate</p>
+                    <p className="font-semibold">{debt.interestRate || 0}%</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-sm">Due Date</p>
+                    <p className="font-semibold">{debt.dueDate || 'N/A'}</p>
+                  </div>
+                </div>
+                {debt.notes && (
+                  <p className="text-gray-600 text-sm mb-4">Notes: {debt.notes}</p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handlePaid(debt.id, !debt.paid)}
+                    className={`px-4 py-2 rounded-lg ${debt.paid ? 'bg-gray-200 text-gray-700' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                  >
+                    {debt.paid ? 'Mark Unpaid' : 'Mark Paid'}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(debt.id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

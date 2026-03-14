@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { storage } from "../utils/storage";
+import api from "../api";
 import { FiDollarSign, FiCheck, FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import "./Onboarding.css";
 
@@ -58,7 +58,7 @@ export default function Onboarding() {
   const next = () => { if (validate()) setStep(s => s + 1); };
   const back = () => { setError(""); setStep(s => s - 1); };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     // Prepare onboarding data
     const onboardingData = {
       workType,
@@ -68,51 +68,21 @@ export default function Onboarding() {
       debts: noDebts ? [] : debts.map(d => ({ 
         ...d, 
         amount: parseFloat(d.amount) || 0,
-        interestRate: parseFloat(d.interestRate) || 0,
-        paid: false 
-      })),
-      completedAt: new Date().toISOString()
+        interestRate: parseFloat(d.interestRate) || 0
+      }))
     };
-
+    
+    setError("");
+    
     try {
-      // Save onboarding preferences (USER-SPECIFIC)
-      storage.setItem('balanceiq_onboarding', JSON.stringify(onboardingData));
-
-      // Get existing data (USER-SPECIFIC)
-      const existingExpenses = JSON.parse(storage.getItem('expenses') || '[]');
-      const existingDebts = JSON.parse(storage.getItem('debts') || '[]');
-
-      // Add onboarding expenses to storage with unique IDs and dates
-      const newExpenses = onboardingData.expenses.map((e, idx) => ({
-        id: Date.now() + idx,
-        title: e.description || `${e.category} Expense`,
-        amount: e.amount,
-        category: e.category,
-        date: new Date().toISOString().split('T')[0],
-        notes: "From onboarding setup"
-      }));
-
-      // Add onboarding debts to storage
-      const newDebts = onboardingData.debts.map((d, idx) => ({
-        id: Date.now() + idx + 1000,
-        name: d.name,
-        lender: d.lender || '',
-        amount: d.amount,
-        dueDate: d.dueDate || '',
-        interestRate: d.interestRate || 0,
-        paid: false,
-        notes: d.notes || "From onboarding setup"
-      }));
-
-      // Save (USER-SPECIFIC)
-      storage.setItem('expenses', JSON.stringify([...existingExpenses, ...newExpenses]));
-      storage.setItem('debts', JSON.stringify([...existingDebts, ...newDebts]));
-
+      // Send to backend
+      await api.post("/auth/onboarding", onboardingData);
+      
       // Navigate to dashboard
       navigate("/dashboard");
     } catch (e) {
       console.error('Failed to save onboarding data:', e);
-      setError("Failed to save your data. Please try again.");
+      setError(e.message || "Failed to save your data. Please try again.");
     }
   };
 

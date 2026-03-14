@@ -1,190 +1,148 @@
-import { useState } from "react";
-import axios from "axios";
-import { getCurrencySymbol } from "../utils/storage";
-import { FiDollarSign, FiInfo, FiLoader, FiRefreshCw } from "react-icons/fi";
-import "./TaxCalculator.css";
-
-const BRACKETS = {
-  single:             [{ max:11925,rate:.10},{max:48475,rate:.12},{max:103350,rate:.22},{max:197300,rate:.24},{max:250525,rate:.32},{max:626350,rate:.35},{max:Infinity,rate:.37}],
-  married_jointly:    [{ max:23850,rate:.10},{max:96950,rate:.12},{max:206700,rate:.22},{max:394600,rate:.24},{max:501050,rate:.32},{max:751600,rate:.35},{max:Infinity,rate:.37}],
-  married_separately: [{ max:11925,rate:.10},{max:48475,rate:.12},{max:103350,rate:.22},{max:197300,rate:.24},{max:250525,rate:.32},{max:375800,rate:.35},{max:Infinity,rate:.37}],
-  head_of_household:  [{ max:17000,rate:.10},{max:64850,rate:.12},{max:103350,rate:.22},{max:197300,rate:.24},{max:250500,rate:.32},{max:626350,rate:.35},{max:Infinity,rate:.37}],
-};
-const STD_DED = { single:14600, married_jointly:29200, married_separately:14600, head_of_household:21900 };
-
-function calcTax(income, status) {
-  let tax = 0, breakdown = [];
-  let prevMax = 0;
-  for (const b of BRACKETS[status]) {
-    if (income <= prevMax) break;
-    const taxable = Math.min(income, b.max) - prevMax;
-    tax += taxable * b.rate;
-    breakdown.push({ rate: b.rate * 100, taxable, tax: taxable * b.rate });
-    prevMax = b.max;
-  }
-  return { tax, breakdown };
-}
-
-function marginalRate(income, status) {
-  let prev = 0;
-  for (const b of BRACKETS[status]) {
-    if (income > prev && income <= b.max) return b.rate * 100;
-    prev = b.max;
-  }
-  return 37;
-}
-
-const BLANK = { filingStatus:"single", grossIncome:"", additionalIncome:"", deductionType:"standard", itemizedAmount:"", withheld:"", taxYear:"2025" };
-const currencySymbol = getCurrencySymbol();
-const fmt = n => n < 0 ? `-${currencySymbol}${Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}` : `${currencySymbol}${n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+import { useState, useEffect } from "react";
+import api from "../api";
 
 export default function TaxCalculator() {
-  const [form,       setForm]        = useState(BLANK);
-  const [result,     setResult]      = useState(null);
-  const [calculating,setCalculating] = useState(false);
-  const [useBackend, setUseBackend]  = useState(false);
-  const [backendErr, setBackendErr]  = useState("");
+  const [income, setIncome] = useState("");
+  const [country, setCountry] = useState("KE"); // Kenya default
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [userPrefs, setUserPrefs] = useState(null);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
 
-  const calculate = async () => {
-    const gross = parseFloat(form.grossIncome) || 0;
-    if (gross <= 0) return;
-    setCalculating(true); setBackendErr("");
+  const loadUserProfile = async () => {
+    try {
+      const r = await api.get("/auth/profile");
+      setUserPrefs(r.data);
+      // Set country based on user's currency if available
+      if (r.data?.currency === 'KES') setCountry('KE');
+      else if (r.data?.currency === 'USD') setCountry('US');
+    } catch (e) {
+      console.error("Failed to load profile:", e);
+    }
+  };
 
-    if (useBackend) {
-      try { const r = await axios.post("/api/taxes/calculate", form); setResult(r.data); setCalculating(false); return; }
-      catch { setBackendErr("Backend unavailable — using frontend calculation."); }
+  const calculateTax = async () => {
+    if (!income || isNaN(income) || +income <= 0) {
+      setError("Please enter a valid income amount");
+      return;
     }
 
-    await new Promise(r => setTimeout(r, 350));
-    const totalGross    = gross + (parseFloat(form.additionalIncome) || 0);
-    const stdDed        = STD_DED[form.filingStatus];
-    const itemized      = parseFloat(form.itemizedAmount) || 0;
-    const deduction     = form.deductionType === "standard" ? stdDed : Math.max(stdDed, itemized);
-    const taxableIncome = Math.max(0, totalGross - deduction);
-    const { tax: federalTax, breakdown } = calcTax(taxableIncome, form.filingStatus);
-    const withheld  = parseFloat(form.withheld) || 0;
-    const refund    = withheld - federalTax;
-    const effective = totalGross > 0 ? (federalTax / totalGross) * 100 : 0;
-    const marginal  = marginalRate(taxableIncome, form.filingStatus);
-
-    setResult({ totalGross, deduction, taxableIncome, federalTax, withheld, refund, effective, marginal, breakdown });
-    setCalculating(false);
+    setLoading(true);
+    setError("");
+    
+    try {
+      const r = await api.post("/tax/calculate", {
+        income: parseFloat(income),
+        country: country
+      });
+      setResult(r.data);
+    } catch (e) {
+      console.error("Failed to calculate tax:", e);
+      setError(e.message || "Failed to calculate tax");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">Tax Calculator</h1>
-          <p className="page__sub">US federal income tax estimate for {form.taxYear}</p>
-        </div>
-        <div className="tax-hdr">
-          <label className="toggle-row">
-            <span className="toggle-label">Use backend API</span>
-            <button className={`toggle ${useBackend ? "toggle--on" : ""}`} onClick={() => setUseBackend(v => !v)}>
-              <span className="toggle__thumb" />
-            </button>
-          </label>
-          {result && <button className="btn btn--secondary btn--sm" onClick={() => { setResult(null); setForm(BLANK); }}><FiRefreshCw /> Reset</button>}
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Tax Calculator</h1>
 
-      {backendErr && <div className="form-error" style={{ marginBottom:"1rem" }}>{backendErr}</div>}
-
-      <div className="tax-layout">
-        <div className="card tax-inputs">
-          <p className="card__title">Your Information</p>
-          <div className="form-group">
-            <label className="form-label">Tax Year</label>
-            <select className="form-select" value={form.taxYear} onChange={e => set("taxYear", e.target.value)}>
-              <option value="2025">2025</option><option value="2024">2024</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Filing Status</label>
-            <select className="form-select" value={form.filingStatus} onChange={e => set("filingStatus", e.target.value)}>
-              <option value="single">Single</option>
-              <option value="married_jointly">Married Filing Jointly</option>
-              <option value="married_separately">Married Filing Separately</option>
-              <option value="head_of_household">Head of Household</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Gross W-2 Income ($)</label>
-            <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" placeholder="75000" value={form.grossIncome} onChange={e => set("grossIncome", e.target.value)} /></div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Additional Income ($) <span className="form-hint">freelance, dividends…</span></label>
-            <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" placeholder="0" value={form.additionalIncome} onChange={e => set("additionalIncome", e.target.value)} /></div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Deductions</label>
-            <div className="radio-row">
-              <label className="radio-item"><input type="radio" checked={form.deductionType==="standard"} onChange={() => set("deductionType","standard")} /> Standard (${STD_DED[form.filingStatus].toLocaleString()})</label>
-              <label className="radio-item"><input type="radio" checked={form.deductionType==="itemized"} onChange={() => set("deductionType","itemized")} /> Itemized</label>
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Calculate Your Tax</h2>
+          
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
             </div>
-            {form.deductionType === "itemized" && (
-              <div className="input-wrap" style={{ marginTop:"0.5rem" }}><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" placeholder="e.g. 18000" value={form.itemizedAmount} onChange={e => set("itemizedAmount", e.target.value)} /></div>
-            )}
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-700 mb-2">Annual Income</label>
+              <input
+                type="number"
+                placeholder="Enter your annual income"
+                value={income}
+                onChange={e => setIncome(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 mb-2">Country</label>
+              <select
+                value={country}
+                onChange={e => setCountry(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+              >
+                <option value="KE">Kenya</option>
+                <option value="US">United States</option>
+                <option value="UK">United Kingdom</option>
+                <option value="NG">Nigeria</option>
+                {/* Add more countries as supported by your backend */}
+              </select>
+            </div>
+
+            <button
+              onClick={calculateTax}
+              disabled={loading}
+              className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            >
+              {loading ? "Calculating..." : "Calculate Tax"}
+            </button>
           </div>
-          <div className="form-group">
-            <label className="form-label">Tax Withheld ($) <span className="form-hint">W-2 box 2</span></label>
-            <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" placeholder="0" value={form.withheld} onChange={e => set("withheld", e.target.value)} /></div>
-          </div>
-          <button className="btn btn--primary btn--full btn--lg" onClick={calculate} disabled={!form.grossIncome || calculating}>
-            {calculating ? <><FiLoader className="spin" /> Calculating…</> : "Calculate My Tax"}
-          </button>
-          <p className="tax-disclaimer"><FiInfo /> Estimates only. US federal tax only — does not include state, FICA, AMT, or credits.</p>
         </div>
 
-        <div className="tax-results">
-          {!result ? (
-            <div className="empty"><span className="empty__icon">🧮</span><p>Fill in your info and click Calculate.</p></div>
-          ) : (
-            <>
-              <div className={`refund-banner ${result.refund >= 0 ? "refund-banner--green" : "refund-banner--red"}`}>
-                <span className="refund-banner__label">{result.refund >= 0 ? "Estimated Refund" : "Estimated Amount Owed"}</span>
-                <span className="refund-banner__amount">{fmt(Math.abs(result.refund))}</span>
+        {result && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Tax Calculation Results</h2>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between items-center border-b pb-2">
+                <span className="text-gray-600">Gross Income:</span>
+                <span className="font-semibold text-lg">
+                  ${parseFloat(result.income || income).toFixed(2)}
+                </span>
               </div>
-              <div className="stats-grid" style={{ marginBottom:"0.875rem" }}>
-                <div className="stat-card"><span className="stat-card__label">Federal Tax</span><span className="stat-card__value">{fmt(result.federalTax)}</span></div>
-                <div className="stat-card"><span className="stat-card__label">Taxable Income</span><span className="stat-card__value">${result.taxableIncome.toLocaleString()}</span></div>
-                <div className="stat-card"><span className="stat-card__label">Effective Rate</span><span className="stat-card__value">{result.effective.toFixed(1)}%</span></div>
-                <div className="stat-card"><span className="stat-card__label">Marginal Rate</span><span className="stat-card__value">{result.marginal}%</span></div>
+              
+              <div className="flex justify-between items-center border-b pb-2">
+                <span className="text-gray-600">Tax Amount:</span>
+                <span className="font-semibold text-lg text-red-600">
+                  ${parseFloat(result.tax).toFixed(2)}
+                </span>
               </div>
-              <div className="card">
-                <p className="card__title">Calculation Summary</p>
-                <table className="tax-table">
-                  <tbody>
-                    <tr><td>Gross Income</td><td>{fmt(result.totalGross)}</td></tr>
-                    <tr><td>Deduction ({form.deductionType})</td><td>-{fmt(result.deduction)}</td></tr>
-                    <tr className="tax-table__hl"><td>Taxable Income</td><td>{fmt(result.taxableIncome)}</td></tr>
-                    <tr><td>Federal Income Tax</td><td>{fmt(result.federalTax)}</td></tr>
-                    <tr><td>Tax Withheld</td><td>-{fmt(result.withheld)}</td></tr>
-                    <tr className={`tax-table__hl ${result.refund >= 0 ? "tax-table__hl--green" : "tax-table__hl--red"}`}>
-                      <td><strong>{result.refund >= 0 ? "Refund" : "Owed"}</strong></td>
-                      <td><strong>{fmt(Math.abs(result.refund))}</strong></td>
-                    </tr>
-                  </tbody>
-                </table>
+              
+              <div className="flex justify-between items-center border-b pb-2">
+                <span className="text-gray-600">Effective Tax Rate:</span>
+                <span className="font-semibold">
+                  {result.rate ? `${result.rate}%` : 'N/A'}
+                </span>
               </div>
-              <div className="card">
-                <p className="card__title">Bracket Breakdown</p>
-                <div className="bracket-list">
-                  {result.breakdown.map((b, i) => (
-                    <div key={i} className="bracket-row">
-                      <span className="bracket-row__rate">{b.rate}%</span>
-                      <div className="bracket-row__track"><div className="bracket-row__fill" style={{ width:`${Math.min(100,(b.taxable/result.taxableIncome)*100)}%` }} /></div>
-                      <span className="bracket-row__tax">{fmt(b.tax)}</span>
-                    </div>
-                  ))}
+              
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-gray-600 font-semibold">Net Income:</span>
+                <span className="font-bold text-xl text-green-600">
+                  ${parseFloat(result.netIncome || (result.income - result.tax)).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {result.breakdown && (
+              <div className="mt-6">
+                <h3 className="font-semibold mb-2">Tax Breakdown:</h3>
+                <div className="bg-gray-50 p-4 rounded-lg text-sm">
+                  <pre className="whitespace-pre-wrap">{JSON.stringify(result.breakdown, null, 2)}</pre>
                 </div>
               </div>
-            </>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

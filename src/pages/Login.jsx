@@ -30,13 +30,18 @@ export default function Login() {
       });
       // Save token and user info
       localStorage.setItem("token", r.data.access_token);
-      localStorage.setItem("user_id", r.data.user_id); // NEW: Save user ID
-      localStorage.setItem("user_email", form.email); // NEW: Optional, for display
+      localStorage.setItem("user_id", r.data.user_id);
+      localStorage.setItem("user_email", form.email);
       
-      // Check if user has completed onboarding (USER-SPECIFIC)
-      const hasOnboarding = localStorage.getItem(`balanceiq_onboarding_${r.data.user_id}`);
-      
-      navigate(hasOnboarding ? "/dashboard" : "/onboarding");
+      // Check if user has completed onboarding by calling backend
+      try {
+        const profileRes = await api.get("/auth/profile");
+        const hasOnboarding = profileRes.data && profileRes.data.workType; // Check if profile has workType (indicating onboarding completion)
+        navigate(hasOnboarding ? "/dashboard" : "/onboarding");
+      } catch (profileError) {
+        // If profile fetch fails, assume no onboarding and redirect to onboarding
+        navigate("/onboarding");
+      }
     } catch (e) {
       const isFrontend = e.type === "frontend";
       const isBackend  = e.type === "backend";

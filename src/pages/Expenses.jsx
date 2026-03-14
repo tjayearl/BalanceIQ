@@ -1,139 +1,209 @@
-import { useState, useEffect, useContext } from "react";
-import { FinanceContext } from "../context/FinanceContext";
-import { storage, getCurrencySymbol } from "../utils/storage";
+import { useState, useEffect } from "react";
 import api from "../api";
-import { FiPlus, FiTrash2, FiDollarSign, FiTag, FiCalendar, FiLoader, FiX } from "react-icons/fi";
-import "./Expenses.css";
 
-const CATEGORIES = ["Food","Transport","Housing","Entertainment","Health","Shopping","Utilities","Other"];
-const CAT_COLOR  = { Food:"#10b981", Transport:"#3b82f6", Housing:"#f59e0b", Entertainment:"#8b5cf6", Health:"#ef4444", Shopping:"#ec4899", Utilities:"#06b6d4", Other:"#64748b" };
-  const currencySymbol = getCurrencySymbol();
+const EMPTY_EXPENSE_FORM = {
+  title: "",
+  amount: "",
+  category: "Food",
+  date: new Date().toISOString().split('T')[0],
+  notes: ""
+};
 
 export default function Expenses() {
-  const { expenses, addExpense, deleteExpense } = useContext(FinanceContext);
-  const [items, setItems] = useState(expenses);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(BLANK);
-  const [error, setError] = useState("");
+  const [form, setForm] = useState(EMPTY_EXPENSE_FORM);
   const [saving, setSaving] = useState(false);
-  const [filter, setFilter] = useState("All");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setItems(expenses);
-  }, [expenses]);
+    loadExpenses();
+  }, []);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const loadExpenses = async () => {
+    try {
+      setLoading(true);
+      const r = await api.get("/transactions");
+      const data = Array.isArray(r.data) ? r.data : (r.data?.data ?? r.data?.expenses ?? []);
+      setItems(data);
+    } catch (e) {
+      console.error("Failed to load expenses:", e);
+      setError(e.message || "Failed to load expenses");
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAdd = async () => {
     if (!form.title.trim()) { setError("Title is required."); return; }
-    if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { setError("Enter a valid amount."); return; }
-    setSaving(true); setError("");
-
+    if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { 
+      setError("Enter a valid amount."); 
+      return; 
+    }
+    
+    setSaving(true);
+    setError("");
+    
     const newExpense = { 
-      id: Date.now(), // Generate unique ID
       ...form, 
       amount: parseFloat(form.amount),
-      date: form.date || new Date().toISOString().split('T')[0]
+      type: "expense" // Backend might need this
     };
-
+    
     try {
-      await api.post("/transactions", newExpense);
-    } catch {
-      // API failed, but still add locally
+      const r = await api.post("/transactions", newExpense);
+      setItems([r.data, ...items]);
+      setShowForm(false);
+      setForm(EMPTY_EXPENSE_FORM);
+    } catch (e) {
+      console.error("Failed to add expense:", e);
+      setError(e.message || "Failed to add expense");
+    } finally {
+      setSaving(false);
     }
-    addExpense(newExpense);
-    setShowForm(false); 
-    setForm(BLANK);
-    setSaving(false);
   };
 
-  const handleDelete = async id => {
-    try { await api.delete(`/transactions/${id}`); } catch { /* ignore */ }
-    deleteExpense(id);
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this expense?")) return;
+    
+    try {
+      await api.delete(`/transactions/${id}`);
+      setItems(items.filter(e => e.id !== id));
+    } catch (e) {
+      console.error("Failed to delete expense:", e);
+      setError(e.message || "Failed to delete expense");
+    }
   };
 
-  const safeItems = Array.isArray(items) ? items : [];
-  const visible   = filter === "All" ? safeItems : safeItems.filter(e => e.category === filter);
-  const total     = visible.reduce((s,e) => s + Number(e.amount), 0);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
+        <div className="text-gray-600">Loading expenses...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">Expenses</h1>
-          <p className="page__sub">{visible.length} transaction{visible.length !== 1 ? "s" : ""} · Total: <strong>{currencySymbol}{total.toFixed(2)}</strong></p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Expenses</h1>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            {showForm ? "Cancel" : "+ Add Expense"}
+          </button>
         </div>
-        <button className="btn btn--primary" onClick={() => { setShowForm(true); setError(""); setForm(BLANK); }}>
-          <FiPlus /> Add Expense
-        </button>
-      </div>
 
-      <div className="chips">
-        {["All", ...CATEGORIES].map(c => (
-          <button key={c} className={`chip ${filter === c ? "chip--active" : ""}`} onClick={() => setFilter(c)}>{c}</button>
-        ))}
-      </div>
-
-      {showForm && (
-        <div className="modal-bg" onClick={() => setShowForm(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal__head">
-              <h2 className="modal__title">New Expense</h2>
-              <button className="btn-icon btn-icon--ghost" onClick={() => setShowForm(false)}><FiX /></button>
-            </div>
-            {error && <div className="form-error">{error}</div>}
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">Title</label>
-                <div className="input-wrap"><FiTag className="input-icon" /><input className="form-input" placeholder="e.g. Grocery Run" value={form.title} onChange={e => set("title", e.target.value)} /></div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Amount ({currencySymbol})</label>
-                <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" step="0.01" placeholder="0.00" value={form.amount} onChange={e => set("amount", e.target.value)} /></div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Category</label>
-                <select className="form-select" value={form.category} onChange={e => set("category", e.target.value)}>
-                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Date</label>
-                <div className="input-wrap"><FiCalendar className="input-icon" /><input className="form-input" type="date" value={form.date} onChange={e => set("date", e.target.value)} /></div>
-              </div>
-              <div className="form-group form-group--full">
-                <label className="form-label">Notes <span className="form-hint">(optional)</span></label>
-                <textarea className="form-textarea" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} />
-              </div>
-            </div>
-            <div className="modal__footer">
-              <button className="btn btn--secondary" onClick={() => setShowForm(false)}>Cancel</button>
-              <button className="btn btn--primary" onClick={handleAdd} disabled={saving}>
-                {saving ? <><FiLoader className="spin" /> Saving…</> : "Add Expense"}
-              </button>
-            </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
           </div>
-        </div>
-      )}
+        )}
 
-      {visible.length === 0 ? (
-        <div className="empty"><FiDollarSign className="empty__icon" /><p>No expenses found.</p></div>
-      ) : (
-        <div className="expense-list">
-          {visible.map(e => (
-            <div key={e.id} className="expense-item">
-              <span className="expense-item__dot" style={{ background: CAT_COLOR[e.category] || "#64748b" }} />
-              <div className="expense-item__info">
-                <span className="expense-item__title">{e.title}</span>
-                <span className="expense-item__meta">{e.category} · {e.date}</span>
-                {e.notes && <span className="expense-item__notes">{e.notes}</span>}
-              </div>
-              <span className="expense-item__amount">-{currencySymbol}{Number(e.amount).toFixed(2)}</span>
-              <button className="btn-icon btn-icon--danger" onClick={() => handleDelete(e.id)}><FiTrash2 /></button>
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Add New Expense</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Title"
+                value={form.title}
+                onChange={e => setForm({...form, title: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
+              <input
+                type="number"
+                placeholder="Amount"
+                value={form.amount}
+                onChange={e => setForm({...form, amount: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
+              <select
+                value={form.category}
+                onChange={e => setForm({...form, category: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              >
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Other">Other</option>
+              </select>
+              <input
+                type="date"
+                value={form.date}
+                onChange={e => setForm({...form, date: e.target.value})}
+                className="px-4 py-2 border rounded-lg"
+              />
             </div>
-          ))}
-        </div>
-      )}
+            <textarea
+              placeholder="Notes (optional)"
+              value={form.notes}
+              onChange={e => setForm({...form, notes: e.target.value})}
+              className="w-full px-4 py-2 border rounded-lg mt-4"
+              rows="2"
+            />
+            <button
+              onClick={handleAdd}
+              disabled={saving}
+              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save Expense"}
+            </button>
+          </div>
+        )}
+
+        {items.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-12 text-center">
+            <p className="text-gray-500 mb-4">No expenses yet</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Add Your First Expense
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {items.map(expense => (
+                  <tr key={expense.id}>
+                    <td className="px-6 py-4">{expense.title || expense.description}</td>
+                    <td className="px-6 py-4">{expense.category}</td>
+                    <td className="px-6 py-4 font-semibold text-red-600">
+                      ${parseFloat(expense.amount).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">{expense.date}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleDelete(expense.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
