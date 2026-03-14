@@ -1,13 +1,13 @@
 import { useState, useEffect, useContext } from "react";
 import { FinanceContext } from "../context/FinanceContext";
-import { storage } from "../utils/storage";
+import { storage, getCurrencySymbol } from "../utils/storage";
 import api from "../api";
 import { FiPlus, FiTrash2, FiDollarSign, FiTag, FiCalendar, FiLoader, FiX } from "react-icons/fi";
 import "./Expenses.css";
 
 const CATEGORIES = ["Food","Transport","Housing","Entertainment","Health","Shopping","Utilities","Other"];
 const CAT_COLOR  = { Food:"#10b981", Transport:"#3b82f6", Housing:"#f59e0b", Entertainment:"#8b5cf6", Health:"#ef4444", Shopping:"#ec4899", Utilities:"#06b6d4", Other:"#64748b" };
-const BLANK = { title:"", amount:"", category:"Food", date: new Date().toISOString().split("T")[0], notes:"" };
+  const currencySymbol = getCurrencySymbol();
 
 export default function Expenses() {
   const { expenses, addExpense, deleteExpense } = useContext(FinanceContext);
@@ -61,7 +61,7 @@ export default function Expenses() {
       <div className="page__header">
         <div>
           <h1 className="page__title">Expenses</h1>
-          <p className="page__sub">{visible.length} transaction{visible.length !== 1 ? "s" : ""} · Total: <strong>${total.toFixed(2)}</strong></p>
+          <p className="page__sub">{visible.length} transaction{visible.length !== 1 ? "s" : ""} · Total: <strong>{currencySymbol}{total.toFixed(2)}</strong></p>
         </div>
         <button className="btn btn--primary" onClick={() => { setShowForm(true); setError(""); setForm(BLANK); }}>
           <FiPlus /> Add Expense
@@ -88,7 +88,7 @@ export default function Expenses() {
                 <div className="input-wrap"><FiTag className="input-icon" /><input className="form-input" placeholder="e.g. Grocery Run" value={form.title} onChange={e => set("title", e.target.value)} /></div>
               </div>
               <div className="form-group">
-                <label className="form-label">Amount ($)</label>
+                <label className="form-label">Amount ({currencySymbol})</label>
                 <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" step="0.01" placeholder="0.00" value={form.amount} onChange={e => set("amount", e.target.value)} /></div>
               </div>
               <div className="form-group">
@@ -128,7 +128,7 @@ export default function Expenses() {
                 <span className="expense-item__meta">{e.category} · {e.date}</span>
                 {e.notes && <span className="expense-item__notes">{e.notes}</span>}
               </div>
-              <span className="expense-item__amount">-${Number(e.amount).toFixed(2)}</span>
+              <span className="expense-item__amount">-{currencySymbol}{Number(e.amount).toFixed(2)}</span>
               <button className="btn-icon btn-icon--danger" onClick={() => handleDelete(e.id)}><FiTrash2 /></button>
             </div>
           ))}

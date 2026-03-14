@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FinanceContext } from "../context/FinanceContext";
-import { storage } from "../utils/storage";
+import { storage, getCurrencySymbol } from "../utils/storage";
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -29,7 +29,7 @@ export default function Dashboard() {
     setTimeout(() => setLoading(false), 0);
   }, []);
 
-  const currencySymbol = userPrefs?.currency === 'KES' ? 'KSh' : '$';
+  const currencySymbol = getCurrencySymbol();
 
   const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
   const totalDebts = debts

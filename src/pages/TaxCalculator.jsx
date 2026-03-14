@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { getCurrencySymbol } from "../utils/storage";
 import { FiDollarSign, FiInfo, FiLoader, FiRefreshCw } from "react-icons/fi";
 import "./TaxCalculator.css";
 
@@ -34,7 +35,8 @@ function marginalRate(income, status) {
 }
 
 const BLANK = { filingStatus:"single", grossIncome:"", additionalIncome:"", deductionType:"standard", itemizedAmount:"", withheld:"", taxYear:"2025" };
-const fmt = n => n < 0 ? `-$${Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}` : `$${n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+const currencySymbol = getCurrencySymbol();
+const fmt = n => n < 0 ? `-${currencySymbol}${Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}` : `${currencySymbol}${n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 
 export default function TaxCalculator() {
   const [form,       setForm]        = useState(BLANK);

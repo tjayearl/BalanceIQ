@@ -52,3 +52,17 @@ export const storage = {
     localStorage.removeItem("user_email");
   }
 };
+
+// Get currency symbol based on user's preference
+export const getCurrencySymbol = () => {
+  const onboardingData = storage.getItem('balanceiq_onboarding');
+  if (onboardingData) {
+    try {
+      const prefs = JSON.parse(onboardingData);
+      return prefs.currency === 'KES' ? 'KSh' : '$';
+    } catch (e) {
+      console.error('Failed to parse onboarding data for currency:', e);
+    }
+  }
+  return '$'; // Default to USD
+};

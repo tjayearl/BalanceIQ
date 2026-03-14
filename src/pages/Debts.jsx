@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { FinanceContext } from "../context/FinanceContext";
+import { storage, getCurrencySymbol } from "../utils/storage";
 import api from "../api";
 import { FiPlus, FiTrash2, FiCheckCircle, FiAlertCircle, FiDollarSign, FiCalendar, FiUser, FiLoader, FiX, FiRotateCcw } from "react-icons/fi";
 import "./Debts.css";
@@ -15,6 +16,8 @@ export default function Debts() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("all");
+
+  const currencySymbol = getCurrencySymbol();
 
   useEffect(() => {
     setItems(debts);
@@ -66,7 +69,7 @@ export default function Debts() {
       <div className="page__header">
         <div>
           <h1 className="page__title">Debt Management</h1>
-          <p className="page__sub">Owed: <strong className="c-danger">${totalOwed.toLocaleString()}</strong> · Cleared: <strong className="c-success">${totalPaid.toLocaleString()}</strong></p>
+          <p className="page__sub">Owed: <strong className="c-danger">{currencySymbol}{totalOwed.toLocaleString()}</strong> · Cleared: <strong className="c-success">{currencySymbol}{totalPaid.toLocaleString()}</strong></p>
         </div>
         <button className="btn btn--primary" onClick={() => { setShowForm(true); setError(""); setForm(BLANK); }}>
           <FiPlus /> Add Debt
@@ -75,7 +78,7 @@ export default function Debts() {
 
       <div className="stats-grid">
         <div className="stat-card"><span className="stat-card__label">Active Debts</span><span className="stat-card__value c-danger">{safeItems.filter(d => !d.paid).length}</span></div>
-        <div className="stat-card"><span className="stat-card__label">Total Balance</span><span className="stat-card__value c-danger">${totalOwed.toLocaleString()}</span></div>
+        <div className="stat-card"><span className="stat-card__label">Total Balance</span><span className="stat-card__value c-danger">{currencySymbol}{totalOwed.toLocaleString()}</span></div>
         <div className="stat-card"><span className="stat-card__label">Overdue</span><span className="stat-card__value c-warning">{safeItems.filter(isOverdue).length}</span></div>
         <div className="stat-card"><span className="stat-card__label">Debts Cleared</span><span className="stat-card__value c-success">{safeItems.filter(d => d.paid).length}</span></div>
       </div>
@@ -104,7 +107,7 @@ export default function Debts() {
                 <div className="input-wrap"><FiUser className="input-icon" /><input className="form-input" placeholder="e.g. Bank of America" value={form.lender} onChange={e => set("lender", e.target.value)} /></div>
               </div>
               <div className="form-group">
-                <label className="form-label">Balance ($)</label>
+                <label className="form-label">Balance ({currencySymbol})</label>
                 <div className="input-wrap"><FiDollarSign className="input-icon" /><input className="form-input" type="number" min="0" placeholder="0.00" value={form.amount} onChange={e => set("amount", e.target.value)} /></div>
               </div>
               <div className="form-group">
@@ -148,7 +151,7 @@ export default function Debts() {
                 </div>
               </div>
               <div className="debt-card__meta">
-                <span className={`debt-card__amount ${d.paid ? "c-success" : "c-danger"}`}>${Number(d.amount).toLocaleString()}</span>
+                <span className={`debt-card__amount ${d.paid ? "c-success" : "c-danger"}`}>{currencySymbol}{Number(d.amount).toLocaleString()}</span>
                 {d.dueDate && <span className="debt-card__due"><FiCalendar /> Due {d.dueDate}</span>}
               </div>
               {d.notes && <p className="debt-card__notes">{d.notes}</p>}
