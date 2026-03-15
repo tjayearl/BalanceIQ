@@ -29,7 +29,7 @@ const STRENGTH = pw => {
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form,    setForm]    = useState({ name: "", email: "", password: "", confirm: "" });
+  const [form,    setForm]    = useState({ fullName: "", email: "", password: "", confirmPassword: "" });
   const [error,   setError]   = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,16 +37,16 @@ export default function Register() {
   const strength = STRENGTH(form.password);
 
   const handleSubmit = async () => {
-    if (!form.name.trim())                        { setError("Please enter your full name."); return; }
-    if (!form.email.trim())                       { setError("Please enter your email."); return; }
+    if (!form.fullName.trim())                     { setError("Please enter your full name."); return; }
+    if (!form.email.trim())                        { setError("Please enter your email."); return; }
     if (!/\S+@\S+\.\S+/.test(form.email))        { setError("Please enter a valid email address."); return; }
-    if (form.password.length < 8)                 { setError("Password must be at least 8 characters."); return; }
-    if (form.password !== form.confirm)           { setError("Passwords do not match."); return; }
+    if (form.password.length < 8)                  { setError("Password must be at least 8 characters."); return; }
+    if (form.password !== form.confirmPassword)    { setError("Passwords do not match."); return; }
 
     setLoading(true); setError("");
     try {
       const r = await api.post("/auth/register", {
-        name:     form.name,
+        fullName: form.fullName,
         email:    form.email,
         password: form.password,
       });
@@ -123,8 +123,8 @@ export default function Register() {
                   className="form-input"
                   type="text"
                   placeholder="Jane Doe"
-                  value={form.name}
-                  onChange={e => set("name", e.target.value)}
+                  value={form.fullName}
+                  onChange={e => set("fullName", e.target.value)}
                   onKeyDown={handleKey}
                   autoComplete="name"
                 />
@@ -187,16 +187,16 @@ export default function Register() {
                   className="form-input"
                   type="password"
                   placeholder="••••••••"
-                  value={form.confirm}
-                  onChange={e => set("confirm", e.target.value)}
+                  value={form.confirmPassword}
+                  onChange={e => set("confirmPassword", e.target.value)}
                   onKeyDown={handleKey}
                   autoComplete="new-password"
                 />
               </div>
-              {form.confirm && form.password !== form.confirm && (
+              {form.confirmPassword && form.password !== form.confirmPassword && (
                 <p className="auth-field-error">Passwords do not match</p>
               )}
-              {form.confirm && form.password === form.confirm && form.confirm.length > 0 && (
+              {form.confirmPassword && form.password === form.confirmPassword && form.confirmPassword.length > 0 && (
                 <p className="auth-field-ok"><FiCheck /> Passwords match</p>
               )}
             </div>
