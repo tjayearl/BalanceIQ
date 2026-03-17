@@ -50,7 +50,8 @@ export default function Debts() {
     const newDebt = { 
       ...form, 
       amount: parseFloat(form.amount), 
-      interestRate: parseFloat(form.interestRate) || 0
+      interestRate: parseFloat(form.interestRate) || 0,
+      due_date: form.dueDate
     };
     
     try {
@@ -206,7 +207,7 @@ export default function Debts() {
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm">Due Date</p>
-                    <p className="font-semibold">{debt.dueDate || 'N/A'}</p>
+                    <p className="font-semibold">{debt.dueDate || debt.due_date || 'N/A'}</p>
                   </div>
                 </div>
                 {debt.notes && (

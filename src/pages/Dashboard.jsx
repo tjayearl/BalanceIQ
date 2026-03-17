@@ -230,7 +230,7 @@ export default function Dashboard() {
                     <div>
                       <p className="font-medium text-gray-800">{debt.name}</p>
                       <p className="text-sm text-gray-500">
-                        {debt.lender ? `To: ${debt.lender}` : ''} • Due: {debt.dueDate || 'No date'}
+                        {debt.lender ? `To: ${debt.lender}` : ''} • Due: {debt.dueDate || debt.due_date || 'No date'}
                       </p>
                     </div>
                     <p className="font-semibold text-orange-600">
