@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../api";
 
 const EMPTY_EXPENSE_FORM = {
-  title: "",
+  description: "",
   amount: "",
   category: "Food",
   date: new Date().toISOString().split('T')[0],
@@ -37,7 +37,7 @@ export default function Expenses() {
   };
 
   const handleAdd = async () => {
-    if (!form.title.trim()) { setError("Title is required."); return; }
+    if (!form.description.trim()) { setError("Description is required."); return; }
     if (!form.amount || isNaN(form.amount) || +form.amount <= 0) { 
       setError("Enter a valid amount."); 
       return; 
@@ -110,9 +110,9 @@ export default function Expenses() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
                 type="text"
-                placeholder="Title"
-                value={form.title}
-                onChange={e => setForm({...form, title: e.target.value})}
+                placeholder="Description"
+                value={form.description}
+                onChange={e => setForm({...form, description: e.target.value})}
                 className="px-4 py-2 border rounded-lg"
               />
               <input
@@ -173,7 +173,7 @@ export default function Expenses() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
@@ -183,7 +183,7 @@ export default function Expenses() {
               <tbody className="divide-y divide-gray-200">
                 {items.map(expense => (
                   <tr key={expense.id}>
-                    <td className="px-6 py-4">{expense.title || expense.description}</td>
+                    <td className="px-6 py-4">{expense.description}</td>
                     <td className="px-6 py-4">{expense.category}</td>
                     <td className="px-6 py-4 font-semibold text-red-600">
                       ${parseFloat(expense.amount).toFixed(2)}
