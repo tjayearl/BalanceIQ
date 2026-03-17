@@ -12,6 +12,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadDashboardData();
+
+    // Keep backend awake
+    const keepAlive = setInterval(() => {
+      api.get('/health').catch(() => {});
+    }, 10 * 60 * 1000); // 10 minutes
+
+    return () => clearInterval(keepAlive);
   }, []);
 
   const loadDashboardData = async () => {
