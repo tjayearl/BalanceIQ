@@ -150,7 +150,7 @@ export default function Dashboard() {
           </button>
 
           <button
-            onClick={() => navigate("/dashboard/tax-calculator")}
+            onClick={() => navigate("/dashboard/taxes")}
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition text-left"
           >
             <h3 className="text-lg font-semibold text-gray-800 mb-2">🧮 Tax Calculator</h3>
