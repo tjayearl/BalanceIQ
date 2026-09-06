@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me-in-development"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,https://balance-iq-gamma.vercel.app"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
